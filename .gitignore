@@ -10,3 +10,5 @@ logs/
 delivery-queue/
 *.jsonl
 .DS_Store
+agents
+agents/

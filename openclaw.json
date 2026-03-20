@@ -1,0 +1,178 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.3.13",
+    "lastTouchedAt": "2026-03-20T05:34:44.762Z"
+  },
+  "wizard": {
+    "lastRunAt": "2026-03-19T11:01:32.328Z",
+    "lastRunVersion": "2026.3.13",
+    "lastRunCommand": "onboard",
+    "lastRunMode": "local"
+  },
+  "auth": {
+    "profiles": {
+      "minimax:cn": {
+        "provider": "minimax",
+        "mode": "api_key"
+      }
+    }
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "minimax": {
+        "baseUrl": "https://api.minimaxi.com/anthropic",
+        "api": "anthropic-messages",
+        "authHeader": true,
+        "models": [
+          {
+            "id": "MiniMax-M2.5",
+            "name": "MiniMax M2.5",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0.3,
+              "output": 1.2,
+              "cacheRead": 0.03,
+              "cacheWrite": 0.12
+            },
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "minimax/MiniMax-M2.5"
+      },
+      "models": {
+        "minimax/MiniMax-M2.5": {
+          "alias": "Minimax"
+        }
+      },
+      "workspace": "/Users/zhoutao/.openclaw/workspace",
+      "compaction": {
+        "mode": "safeguard"
+      }
+    },
+    "list": [
+      {
+        "id": "main"
+      },
+      {
+        "id": "product",
+        "name": "product",
+        "workspace": "/Users/zhoutao/.openclaw/workspace-product",
+        "agentDir": "/Users/zhoutao/.openclaw/agents/product/agent"
+      },
+      {
+        "id": "developer",
+        "name": "developer",
+        "workspace": "/Users/zhoutao/.openclaw/workspace-developer",
+        "agentDir": "/Users/zhoutao/.openclaw/agents/developer/agent"
+      },
+      {
+        "id": "tester",
+        "name": "tester",
+        "workspace": "/Users/zhoutao/.openclaw/workspace-tester",
+        "agentDir": "/Users/zhoutao/.openclaw/agents/tester/agent"
+      }
+    ]
+  },
+  "tools": {
+    "profile": "coding"
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
+  "channels": {
+    "feishu": {
+      "enabled": true,
+      "appId": "cli_a91436b647f99cb5",
+      "appSecret": "SnLWuZFX3kpBQ8Q2gAcPRbkAHaEVMUdI",
+      "connectionMode": "websocket",
+      "domain": "feishu",
+      "groupPolicy": "open"
+    }
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "loopback",
+    "auth": {
+      "mode": "token",
+      "token": "3e06ada0115794efd4d7992db2ede8912dc9e719ee0e1ca3"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    },
+    "nodes": {
+      "denyCommands": [
+        "camera.snap",
+        "camera.clip",
+        "screen.record",
+        "contacts.add",
+        "calendar.add",
+        "reminders.add",
+        "sms.send"
+      ]
+    }
+  },
+  "plugins": {
+    "load": {
+      "paths": [
+        "/usr/local/lib/node_modules/openclaw/extensions/feishu"
+      ]
+    },
+    "slots": {
+      "memory": "openclaw-mem0-plugin"
+    },
+    "entries": {
+      "feishu": {
+        "enabled": true
+      },
+      "memory-core": {
+        "enabled": false
+      },
+      "memory-lancedb": {
+        "enabled": false
+      },
+      "openclaw-mem0-plugin": {  
+        "enabled": true,  
+        "config": {  
+          "mode": "platform",         
+          "apiKey": "5015554c-de66-5948-8ce2-716d71fce676", 
+          "userId": "openclaw-user",   
+          "host": "https://mem0-cnlfjzigaku8gczkzo.mem0.volces.com:8000"  
+        }  
+      }  
+    },
+    "installs": {
+      "openclaw-mem0-plugin": {
+        "source": "npm",
+        "spec": "@xray2016/openclaw-mem0-plugin",
+        "installPath": "/Users/zhoutao/.openclaw/extensions/openclaw-mem0-plugin",
+        "version": "1.0.9",
+        "resolvedName": "@xray2016/openclaw-mem0-plugin",
+        "resolvedVersion": "1.0.9",
+        "resolvedSpec": "@xray2016/openclaw-mem0-plugin@1.0.9",
+        "integrity": "sha512-js9kjHD86ZH0sYUpwj8s1VRTRhx1tlZIm1EYeDH5iDXl++uskd8of5Az1JQloi5EhXw2hf+nGxCJM/YCxOtS0Q==",
+        "shasum": "c7f5271b2623e2943c5b85a6f7ce2a6733ecdf1b",
+        "resolvedAt": "2026-03-20T05:34:17.212Z",
+        "installedAt": "2026-03-20T05:34:44.625Z"
+      }
+    }
+  }
+}

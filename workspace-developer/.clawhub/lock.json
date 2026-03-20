@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "skills": {
+    "github": {
+      "version": "1.0.0",
+      "installedAt": 1774001799685
+    },
+    "supabase": {
+      "version": "1.0.0",
+      "installedAt": 1774001911687
+    }
+  }
+}

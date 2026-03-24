@@ -32,6 +32,18 @@
     "data-analyst": {
       "version": "1.0.0",
       "installedAt": 1774000118778
+    },
+    "browser-automation": {
+      "version": "1.0.1",
+      "installedAt": 1774095806573
+    },
+    "xhs-publisher": {
+      "version": "1.0.0",
+      "installedAt": 1774095816597
+    },
+    "csdn-article-publish": {
+      "version": "0.1.0",
+      "installedAt": 1774095865690
     }
   }
 }

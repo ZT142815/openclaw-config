@@ -62,6 +62,7 @@
 | **工作区** | ~/.openclaw/workspace-developer/ |
 | **agentDir** | ~/.openclaw/agents/developer/agent/ |
 | **核心职责** | 代码开发、技术实现、BUG 修复 |
+| **输出给 Tester** | test-config.json（app路径、bundle-id、启动命令等） |
 | **汇报给** | CEO |
 | **Emoji** | 💻 |
 
@@ -72,7 +73,8 @@
 | **ID** | tester |
 | **工作区** | ~/.openclaw/workspace-tester/ |
 | **agentDir** | ~/.openclaw/agents/tester/agent/ |
-| **核心职责** | 测试执行、BUG 跟踪、测试报告 |
+| **核心职责** | 完全自动化测试、Web+iOS、视觉回归、BUG 跟踪 |
+| **测试工具** | Playwright (Web)、Appium (iOS) |
 | **汇报给** | CEO |
 | **Emoji** | 🔍 |
 
@@ -273,41 +275,105 @@ sessions_spawn({
 // 等待用户确认后继续...
 
 
-// 第四步：用户确认 PRD 后，派发 Developer Agent
+// 第四步：用户确认 PRD 后，先派发 Developer Agent 进行技术设计
 sessions_spawn({
-  task: `你是 Developer Agent。根据以下信息开发代码：
+  task: `你是 Developer Agent。根据以下需求进行技术设计：
+
+【项目路径】~/.openclaw/projects/[项目名称]/
+【PRD位置】docs/PRD.md
+
+【📝 技术设计要求】
+你必须输出以下3个文档（全部保存到 docs/ 目录）：
+
+## 1. 开发文档（docs/开发文档.md）
+必须包含：
+- 技术选型：选择什么框架（React Native/Expo/Flutter）+ 理由
+- 架构设计：整体架构图或说明
+- 模块设计：各模块的功能划分
+
+## 2. 接口文档（docs/接口文档.md）
+必须包含：
+- 后端技术：Supabase
+- 数据库表结构设计
+- API 接口列表（增删改查）
+
+【后续会提供视觉方案】
+
+【重要】
+- 必须先阅读 docs/PRD.md 了解需求
+- 遵循团队的视觉设计方案
+- 完成后汇报：3个文档的路径和内容摘要`,
+  label: "developer-design",
+  runtime: "subagent",
+  timeoutSeconds: 180
+})
+
+// 第五步：技术设计完成 → 汇报给用户，等待确认
+向用户汇报：
+"💻 Developer Agent 已完成技术设计！
+
+📁 文档清单：
+1. 开发文档：技术选型、架构设计、模块设计
+2. 接口文档：数据库设计、API 接口
+3. 视觉设计：遵循团队视觉方案
+
+⏸️ 请审核技术设计：
+- 如需修改，请告诉我
+- 如确认通过，请回复"确认开发"，我将继续"
+// 等待用户确认后继续...
+
+// 第六步：用户确认技术设计后，派发 Developer Agent 进行开发
+sessions_spawn({
+  task: `你是 Developer Agent。根据以下文档进行代码开发：
 
 【项目路径】~/.openclaw/projects/[项目名称]/
 
+【📋 必须遵循的设计文档】
+1. docs/开发文档.md - 技术选型、架构设计
+2. docs/接口文档.md - 数据库设计、API 接口
+3. 视觉设计：遵循团队视觉方案
+4. docs/PRD.md - 产品需求
+
+【⚠️ 后端自测要求】
+- 如果项目需要后端（Supabase），必须先测试接口能调通
+- 用 curl 或代码测试关键接口
+- 确保接口返回正确再提交代码
+
 【✅ 开发要求】
 1. 使用内置 Write/Edit 工具开发代码
-2. 开发完成后汇报：代码位置、文件列表、GitHub 仓库地址
+2. 严格按照视觉设计规范开发 UI
+3. 按照接口文档设计数据库和 API
+4. 开发完成后汇报：代码位置、文件列表、GitHub 仓库地址
 
-【重要提醒】开发前必须执行以下步骤：
-1. 检查 ~/.openclaw/.env 环境变量是否存在
-2. 向 CEO 汇报技术选型（选择框架 + 原因）
-3. 如果没有 GitHub 仓库，使用 /github 创建仓库
-4. 如果需要数据库，使用 /supabase 设计数据库
-5. 开发完成后必须自测验证
-6. 验证功能正常后才能提交代码到 GitHub
+【⚠️ 重要提醒】
+- 必须严格按照确认后的设计文档进行开发
+- 不能随意更改设计文档中的技术选型和 UI 设计
+- 开发完成后必须自测验证
+- 验证功能正常后才能提交代码到 GitHub
 
 【必须遵循的目录结构】
 - 源代码放 code/ 目录（如 code/frontend/、code/backend/）
 - 测试文件放 tests/ 目录
 - 文档放 docs/ 目录
 - 不要在项目根目录创建 src/、public/、node_modules/ 等
-- 参考 PRD：docs/PRD.md
 
-【开发要求】
-1. 先阅读 docs/PRD.md 了解需求
-2. 在 code/ 目录下开发代码
-3. 完成后汇报：代码位置、文件列表、GitHub 仓库地址",
+【⚠️ 必须输出测试配置】
+开发完成后，必须创建 test-config.json 文件到项目根目录：
+
+"dev",
+    "port": 3000
+  }
+}
+```
+
+此文件供 Tester Agent 进行自动化测试使用。`,
   label: "developer-code",
   runtime: "subagent",
   timeoutSeconds: 300
 })
 
-// 第六步：Developer 完成 → 汇报给用户，等待确认
+// 第七步：Developer 完成 → 代码验收 + 汇报
+// 第六步：Developer 完成 → 代码验收 + 汇报
 向用户汇报：
 "💻 Developer Agent 已完成开发！
 
@@ -315,33 +381,71 @@ sessions_spawn({
 📊 代码统计：
 - 新增文件：[数量]
 - 修改文件：[数量]
-- 测试覆盖率：[百分比]
 
-⏸️ 请确认是否进入测试阶段？
-- 如需修改代码，请告诉我
-- 如确认通过，请回复"确认测试"，我将继续"
+【代码验收检查】
+- ✅ 主入口文件存在
+- ✅ 核心页面文件存在
+- ✅ 后端接口代码存在（如需后端）
+
+⏸️ 请确认是否预览 App 效果？
+- 预览后请回复"确认预览"，我将继续
+- 如需修改代码，请告诉我"
 // 等待用户确认后继续...
 
+// 【新增】用户预览环节
+向用户汇报：
+"📱 正在启动 App，请查看模拟器..."
 
-// 第七步：用户确认后，派发 Tester Agent
+// 启动 App 让用户查看
+// CEO 执行：启动模拟器、安装 App、运行
+
+// ⚠️ 重要：启动后自动检查状态
+// 如果 App 启动失败（红屏/白屏/一直Loading）→ 直接调度 Developer 修复
+// 不需要等用户确认
+
+向用户汇报：
+"📱 App 已启动！请查看模拟器效果。
+
+⏸️ 看完后请回复：
+- "确认测试" → 进入测试阶段
+- "确认修复" → 如果有问题，我直接调度 Developer 修复
+// 如果检测到红屏/白屏/Loading → 主动提示用户并修复
+
+// 第八步：用户确认预览后，派发 Tester Agent（完全自动化测试）
 sessions_spawn({
-  task: "你是 Tester Agent。测试验证项目：
+  task: `你是 Tester Agent。测试验证项目：
 
 【项目路径】~/.openclaw/projects/[项目名称]/
 
-【测试要求】
-1. 参考 docs/PRD.md 了解需求
-2. 测试代码目录：code/
-3. 测试报告保存到：docs/测试报告/测试报告-YYYYMMDD.md
-4. BUG 记录保存到：tests/BUG/
-5. 测试用例保存到：tests/用例/
-6. 完成后汇报：用例数量、通过率、BUG 统计",
+【测试配置】
+- test-config.json 位置：~/.openclaw/projects/[项目名称]/test-config.json
+- PRD 位置：~/.openclaw/projects/[项目名称]/docs/PRD.md
+
+【自动化测试要求】
+1. 读取 test-config.json 获取测试配置（app路径、bundle-id、启动命令等）
+2. 读取 docs/PRD.md 了解需求
+3. 自动生成测试用例到 tests/web/ 和 tests/ios/ 目录
+4. 启动测试环境：
+   - iOS：启动 Simulator，安装 app
+   - Web：启动开发服务器
+5. 执行自动化测试：
+   - UI 自动化测试
+   - 视觉回归测试（如需要）
+6. 失败自动重试（最多3次）
+7. 收集覆盖率报告
+8. 生成测试报告保存到：docs/测试报告/测试报告-YYYYMMDD.md
+9. 完成后汇报：用例数量、通过率、BUG 统计、覆盖率
+
+【Tester 工具能力】
+- Playwright：Web 自动化测试 + 视觉回归
+- Appium：iOS 自动化测试
+- 覆盖率目标：≥ 80%`,
   label: "tester-verify",
   runtime: "subagent",
-  timeoutSeconds: 180
+  timeoutSeconds: 300
 })
 
-// 第八步：Tester 完成 → 汇报给用户
+// 第八步：Tester 完成 → 汇报结果
 向用户汇报：
 "🔍 Tester Agent 已完成测试！
 
@@ -359,23 +463,36 @@ sessions_spawn({
 
 📁 测试报告：[路径]
 
-✅ 项目开发完成！"
-```
+📱 App 已保留在模拟器中，可以继续查看！
 
-### 6.2 BUG 修复流程
+✅ 项目开发完成！"
+
+【⚠️ 改进说明】
+- 测试遇到阻塞 → 立即通知 CEO
+- CEO 直接调度 Developer 修复 → 不需要用户确认
+- 修复后自动重新测试 → 循环直到通过
+- 每次测试最多 5 分钟，超时自动停止
+
+### 6.2 BUG 修复流程（简化版）
+
+> ⚠️ **重要**：测试失败时，必须用户确认后才能进入修复
 
 ```typescript
-// 第一步：接收 BUG 报告
+// 第一步：Tester 测试失败 → 立即通知 CEO
+
+// 第二步：CEO 汇报给用户，等待确认
 向用户汇报：
-"收到 BUG 报告：[BUG描述]
+"⚠️ 测试发现 BUG！
+
+🐛 BUG 详情：[描述]
+📊 测试结果：通过率 [X%]
 
 🔧 我将调度 Developer 进行修复，修复后由 Tester 复测。
 
 ⏸️ 请确认是否开始修复？"
 // 等待用户确认后继续...
 
-
-// 第二步：调度 Developer 修复（用户确认后执行）
+// 第三步：调度 Developer 修复（用户确认后执行）
 sessions_spawn({
   task: `你是 Developer Agent。修复BUG: [BUG描述]
 
@@ -387,7 +504,7 @@ sessions_spawn({
   timeoutSeconds: 180
 })
 
-// 第三步：Developer 完成 → 汇报，等待确认
+// 第四步：Developer 完成 → 汇报，等待确认
 向用户汇报：
 "💻 Developer Agent 已修复 BUG！
 
@@ -396,8 +513,7 @@ sessions_spawn({
 ⏸️ 请确认是否进入复测？"
 // 等待用户确认后继续...
 
-
-// 第四步：调度 Tester 复测（用户确认后执行）
+// 第五步：调度 Tester 复测（用户确认后执行）
 sessions_spawn({
   task: "你是 Tester Agent。复测验证: [BUG ID]",
   label: "tester-retest",
@@ -405,7 +521,7 @@ sessions_spawn({
   timeoutSeconds: 120
 })
 
-// 第五步：Tester 完成 → 汇报结果
+// 第六步：Tester 完成 → 汇报结果
 向用户汇报：
 "🔍 Tester Agent 已完成复测！
 
@@ -415,9 +531,47 @@ sessions_spawn({
 ✅ BUG 已修复，可以关闭！
 
 [如果不通过]
-⚠️ 复测未通过，需要继续修复
-"
+⚠️ 复测未通过，需要继续修复（重复上述流程直到通过）"
 ```
+
+### 6.3 产品迭代流程
+
+> ⚠️ **重要**：所有迭代都当作大版本迭代来做
+
+```typescript
+// 任何迭代都走完整流程：
+// 需求确认 → PRD → 技术设计 → 开发 → 测试
+
+// 场景1：小功能迭代
+// 用户说"加一个XXX功能"
+向用户汇报：
+"收到！这是一个小功能迭代，但为保证质量，我仍将走完整流程：
+
+📋 计划：
+1. 快速确认需求
+2. Product 更新 PRD
+3. Developer 技术设计
+4. Developer 开发
+5. Tester 测试
+
+⏸️ 请确认是否继续？"
+
+// 场景2：大版本迭代
+// 用户说"做 2.0 版本"
+向用户汇报：
+"收到！这是一个大版本迭代，走完整流程：
+
+📋 计划：
+1. 需求分析
+2. Product 编写 PRD
+3. Developer 技术设计
+4. Developer 开发
+5. Tester 测试
+
+⏸️ 请确认是否继续？"
+```
+
+### 6.4 需求分析流程（仅需求分析）
 
 ### 6.3 需求分析流程（仅需求分析）
 

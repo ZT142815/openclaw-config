@@ -141,6 +141,20 @@ function getUser(userId: string): User {
 需要配置后才能继续开发。
 ```
 
+### 📚 Supabase 使用指南
+
+当项目需要使用 Supabase 时：
+
+1. **读取 skills/SUPABASE.md** - 了解完整的 Supabase 使用流程
+2. **检查项目配置** - 确认 SUPABASE_URL 和 SUPABASE_SERVICE_KEY
+3. **创建数据库表** - 通过 Dashboard SQL Editor 执行 SQL
+4. **配置 RLS 策略** - 确保数据安全
+5. **管理 Secrets** - 使用 `supabase secrets` 命令
+
+**重要**：
+- anon key 用于前端，service_role key 只在后端使用
+- 不熟悉 Supabase 时先阅读 skills/SUPABASE.md
+
 ---
 
 ## 汇报模板

@@ -1,5 +1,3 @@
-
-
 # TOOLS.md - Tester Agent 工具配置
 
 ## 第四层：工具层
@@ -9,53 +7,317 @@
 
 ---
 
-## 一、测试工具箱
+## ⚠️ 测试流程规范（必须遵循）
 
-### 1.1 文档与报告
+### 1. 超时机制
+- **单次测试最大运行时间：5 分钟**
+- 超过 5 分钟自动停止并汇报当前状态
+- 遇到死循环立即停止
 
-| 工具 | 用途 | 优先级 |
-|------|------|--------|
-| Markdown 编写器 | 编写测试用例、BUG 报告、测试报告 | ⭐⭐⭐ |
-| 表格生成器 | 创建对比表格、统计表格 | ⭐⭐⭐ |
-| 代码高亮 | 展示代码片段（BUG 复现步骤中） | ⭐ |
+### 2. 状态汇报
+- 每 30 秒汇报一次进度
+- 汇报内容：用例进度、当前执行的测试
+- 遇到阻塞立即汇报 CEO
 
-### 1.2 协作工具
+### 3. 失败处理
+- 测试失败 → 立即汇报 CEO
+- CEO 会直接调度 Developer 修复
+- 修复后自动重新测试
 
-| 工具 | 用途 | 优先级 |
-|------|------|--------|
-| 文件系统 | 读写测试用例文件、报告文件 | ⭐⭐⭐ |
-| Web 搜索 | 查询技术文档、复现方案 | ⭐⭐ |
-| 内容提取 | 从网页提取文档、规范 | ⭐⭐ |
+### 4. 测试报告
+- 必须保存到 `docs/测试报告/` 目录
+- 报告格式见第6节
 
 ---
 
-## 二、测试文档模板
+## 一、已安装的测试工具
 
-### 2.1 测试用例模板
+| 工具 | 版本 | 用途 |
+|------|------|------|
+| **Playwright** | 1.58.2 | Web 自动化测试、视觉回归 |
+| **Appium** | 3.2.2 | iOS 自动化测试 |
+| **XCUITest Driver** | 10.33.0 | iOS 原生测试支持 |
+
+---
+
+## 二、Web 测试工具 - Playwright
+
+### 2.1 安装验证
+
+```bash
+# 验证安装
+npx playwright --version
+
+# 列出可用浏览器
+npx playwright install --dry-run
+```
+
+### 2.2 测试脚本示例
+
+```typescript
+// tests/web/login.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('登录功能测试', async ({ page }) => {
+  // 访问页面
+  await page.goto('http://localhost:3000');
+  
+  // 输入用户名密码
+  await page.fill('#username', 'testuser');
+  await page.fill('#password', 'password123');
+  
+  // 点击登录
+  await page.click('#login-button');
+  
+  // 验证跳转
+  await expect(page).toHaveURL(/.*dashboard/);
+});
+```
+
+### 2.3 视觉回归测试
+
+```typescript
+// 截图对比
+import { test } from '@playwright/test';
+
+test('首页视觉回归', async ({ page }) => {
+  await page.goto('http://localhost:3000');
+  
+  // 截图
+  await page.screenshot({ 
+    path: 'tests/baseline/home.png',
+    fullPage: true 
+  });
+  
+  // 对比（使用 pixelmatch 或 Playwright 内置）
+  // Playwright 会自动对比 baseline
+});
+```
+
+### 2.4 配置文件
+
+```json
+// playwright.config.ts
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests/web',
+  timeout: 30000,
+  retries: 2,
+  use: {
+    baseURL: 'http://localhost:3000',
+    screenshot: 'only-on-failure',
+  },
+});
+```
+
+---
+
+## 三、iOS 测试工具 - Appium
+
+### 3.1 启动 Appium
+
+```bash
+# 启动 Appium Server
+appium
+
+# 或指定端口
+appium --address 127.0.0.1 --port 4723
+```
+
+### 3.2 测试脚本示例（Python）
+
+```python
+# tests/ios/test_login.py
+from appium import webdriver
+from appium.webdriver.common.appiumby import AppiumBy
+
+desired_caps = {
+    'platformName': 'iOS',
+    'platformVersion': '17.5',
+    'deviceName': 'iPhone 15 Pro',
+    'bundleId': 'com.example.app',
+    'automationName': 'XCUITest',
+    'app': '/path/to/app.app'
+}
+
+def test_login():
+    driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
+    
+    # 查找元素
+    username_field = driver.find_element(AppiumBy.ID, 'username')
+    password_field = driver.find_element(AppiumBy.ID, 'password')
+    login_button = driver.find_element(AppiumBy.ID, 'login-button')
+    
+    # 输入
+    username_field.send_keys('testuser')
+    password_field.send_keys('password123')
+    
+    # 点击
+    login_button.click()
+    
+    # 验证
+    # ...
+    
+    driver.quit()
+```
+
+### 3.3 Appium 驱动检查
+
+```bash
+# 检查已安装的驱动
+appium driver list --installed
+
+# 安装 XCUITest 驱动（如需要）
+appium driver install xcuitest
+```
+
+---
+
+## 四、iOS Simulator 管理
+
+### 4.1 常用命令
+
+```bash
+# 列出可用模拟器
+xcrun simctl list devices available
+
+# 查看特定版本
+xcrun simctl list devices available | grep "iOS 17.5"
+
+# 启动模拟器
+xcrun simctl boot "iPhone 15 Pro"
+
+# 安装 App
+xcrun simctl install booted /path/to/app.app
+
+# 卸载 App
+xcrun simctl uninstall booted com.example.app
+
+# 启动 App
+xcrun simctl launch booted com.example.app
+
+# 关闭 App
+xcrun simctl terminate booted com.example.app
+
+# 关闭模拟器
+xcrun simctl shutdown "iPhone 15 Pro"
+
+# 删除模拟器数据
+xcrun simctl erase "iPhone 15 Pro"
+```
+
+### 4.2 自动化流程
+
+```bash
+# 完整流程示例
+# 1. 启动
+xcrun simctl boot "iPhone 15 Pro"
+
+# 2. 安装
+xcrun simctl install booted /path/to/app.app
+
+# 3. 启动 App
+xcrun simctl launch booted com.example.app
+
+# 4. 运行测试
+# ...
+
+# 5. 清理
+xcrun simctl terminate booted com.example.app
+```
+
+---
+
+## 五、测试环境启动流程
+
+### 5.1 Web 测试
+
+```bash
+# 1. 启动开发服务器（根据 test-config.json）
+cd /path/to/project
+npm run dev &
+
+# 2. 等待服务就绪
+sleep 5
+
+# 3. 运行 Playwright 测试
+npx playwright test tests/web/
+
+# 4. 查看报告
+npx playwright show-report
+```
+
+### 5.2 iOS 测试
+
+```bash
+# 1. 读取 test-config.json 获取 app 路径和 bundle-id
+
+# 2. 启动模拟器
+xcrun simctl boot "iPhone 15 Pro"
+
+# 3. 安装 App
+xcrun simctl install booted /path/to/app.app
+
+# 4. 启动 Appium
+appium &
+
+# 5. 运行测试
+pytest tests/ios/
+
+# 6. 清理
+xcrun simctl terminate booted com.example.app
+```
+
+---
+
+## 六、测试文档模板
+
+> ⚠️ **重要**：所有测试产物必须保存到项目目录！
+
+### 6.1 测试用例模板
 
 ```
+测试用例保存位置：~/.openclaw/projects/[项目名称]/tests/
+
 ## TC-XXX: [用例名称]
 
 **优先级**: P0/P1/P2/P3
+**测试类型**: UI/E2E/Visual
+**所属模块**: [模块名]
 
-**前置条件**:
+【前置条件】
 1. [条件1]
 2. [条件2]
 
-**测试步骤**:
-1. [步骤1]
-2. [步骤2]
-3. [步骤3]
+【测试步骤】（每步都要详细）
+1. [步骤1：具体操作，包括点击位置、输入内容]
+2. [步骤2：具体操作]
+3. [步骤3：具体操作]
 
-**预期结果**:
-[期望的行为]
+【预期结果】
+- [结果1：具体描述，包括验证的元素和内容]
+- [结果2：具体描述]
 
-**测试数据**:
+【测试数据】
 - 数据1：[值]
 - 数据2：[值]
+
+【页面元素定位】（必须包含）
+- 关键元素1：finder 方式（如 find.text、find.byKey）
+- 关键元素2：finder 方式
+
+【验证方式】
+- 页面跳转验证
+- 元素存在验证
+- 数据正确性验证
+
+【超时设置】
+- 页面等待：3秒
+- 元素查找：5秒
 ```
 
-### 2.2 BUG 报告模板
+### 6.2 BUG 报告模板
 
 ```
 ## BUG-[序号]: [BUG 标题]
@@ -65,9 +327,10 @@
 **复现概率**: 100% / 80% / 50% / 20%
 
 ### 环境信息
-- 操作系统：
-- 浏览器：
-- 版本号：
+- 操作系统：macOS
+- iOS 版本：iOS 17.5
+- 浏览器：Chromium
+- App 版本：1.0.0
 
 ### 复现步骤
 1. [步骤1]
@@ -91,9 +354,13 @@
 [如有]
 ```
 
-### 2.3 测试报告模板
+### 6.3 测试报告模板
+
+> ⚠️ **重要**：测试报告必须保存到 `docs/测试报告/` 目录！
 
 ```
+测试报告保存位置：~/.openclaw/projects/[项目名称]/docs/测试报告/测试报告-YYYYMMDD.md
+
 # 测试报告 - [项目/迭代名称]
 
 ## 测试概要
@@ -101,9 +368,9 @@
 | 项目 | 值 |
 |------|-----|
 | 测试范围 | [模块列表] |
-| 测试类型 | [功能/回归/性能等] |
+| 测试类型 | 功能/回归/视觉 |
 | 测试周期 | [日期] |
-| 测试人员 | [姓名] |
+| 测试人员 | Tester Agent |
 
 ## 测试执行情况
 
@@ -113,8 +380,7 @@
 |------|------|------|
 | 通过 | X | X% |
 | 失败 | X | X% |
-| 阻塞 | X | X% |
-| 未执行 | X | X% |
+| 重试后通过 | X | X% |
 
 ### BUG 统计
 
@@ -132,65 +398,13 @@
 
 ### 遗留问题
 [列表]
-
-### 风险评估
-[说明]
 ```
 
 ---
 
-## 三、测试检查清单
+## 七、质量标准
 
-### 3.1 功能测试检查点
-
-```
-## 功能测试必检项
-
-### 基础功能
-- [ ] 核心业务流程能正常完成
-- [ ] 数据创建/读取/更新/删除正常
-- [ ] 状态转换符合预期
-
-### 边界条件
-- [ ] 空值输入有提示
-- [ ] 边界值能正确处理
-- [ ] 特殊字符能正确处理
-
-### 异常处理
-- [ ] 异常情况有友好提示
-- [ ] 错误信息清晰易懂
-- [ ] 有容错机制
-
-### 界面交互
-- [ ] 按钮点击有反馈
-- [ ] 加载状态有显示
-- [ ] 操作结果有提示
-```
-
-### 3.2 回归测试检查点
-
-```
-## 回归测试检查清单
-
-### BUG 修复验证
-- [ ] BUG-XXX 已修复
-- [ ] 相关功能无异常
-
-### 核心功能
-- [ ] 登录/注册正常
-- [ ] 数据查询正常
-- [ ] 关键流程正常
-
-### 受影响模块
-- [ ] [模块1] 正常
-- [ ] [模块2] 正常
-```
-
----
-
-## 四、质量评估标准
-
-### 4.1 功能测试通过标准
+### 7.1 测试通过标准
 
 | 优先级 | 必须通过 | 通过率要求 |
 |--------|----------|------------|
@@ -199,7 +413,14 @@
 | P2 | ≥ 90% | ≥ 80% |
 | P3 | ≥ 70% | - |
 
-### 4.2 BUG 关闭标准
+### 7.2 覆盖率要求
+
+| 类型 | 目标 |
+|------|------|
+| Web | ≥ 80% |
+| iOS | ≥ 80% |
+
+### 7.3 BUG 关闭标准
 
 | 严重程度 | 修复要求 | 验证要求 |
 |----------|----------|----------|
@@ -210,140 +431,38 @@
 
 ---
 
-## 五、常用工具命令
+## 八、协作命令
 
-### 5.1 文件操作
+### 8.1 与 CEO 汇报
 
-```
-# 读取测试用例
-/读取 测试用例文件路径
+```markdown
+# 测试结果汇报格式
 
-# 写入测试报告
-/写入 测试报告.md
+✅ 测试完成
 
-# 列出测试资产
-/列出 memory/*.md
-```
+📊 测试结果：
+- 用例总数：[数量]
+- 通过：[数量]
+- 失败：[数量]
+- 通过率：[百分比]
 
-### 5.2 协作命令
+🐛 BUG 统计：
+- Critical：[数量]
+- High：[数量]
+- Medium：[数量]
+- Low：[数量]
 
-```
-# 通知 Developer
-/通知 developer BUG详情
-
-# 汇报给 CEO
-/汇报 测试结果
-
-# 请求 Product 澄清
-/询问 product 需求问题
+📁 报告位置：[路径]
 ```
 
----
+### 8.2 与 Developer 协作
 
-## 六、技术参考
-
-### 6.1 测试方法论
-
-- **黑盒测试**：不了解内部实现，专注于输入输出
-- **白盒测试**：了解代码结构，针对性测试
-- **灰盒测试**：结合两者，测试接口和逻辑
-- **探索性测试**：自由探索，发现未知问题
-- **场景测试**：模拟真实用户场景
-
-### 6.2 BUG 分类参考
-
-```
-## BUG 类型
-
-### 功能缺陷
-- 功能缺失
-- 功能错误
-- 功能多余
-
-### 界面问题
-- 布局异常
-- 样式问题
-- 文字错误
-
-### 性能问题
-- 响应慢
-- 内存泄漏
-- 资源占用高
-
-### 安全问题
-- 权限绕过
-- 数据泄露
-- SQL 注入
-
-### 兼容性问题
-- 浏览器兼容
-- 系统兼容
-- 版本兼容
-```
-
----
-
-## 七、第三方测试工具
-
-### 7.1 功能测试
-
-| 工具 | 用途 | 适用场景 |
-|------|------|----------|
-| Selenium | Web 自动化 | 浏览器自动化测试 |
-| Cypress | Web 自动化 | 现代 Web 应用测试 |
-| Playwright | Web 自动化 | 跨浏览器测试 |
-
-### 7.2 API 测试
-
-| 工具 | 用途 | 适用场景 |
-|------|------|----------|
-| Postman | API 调试 | 接口功能测试 |
-| JMeter | 性能测试 | 负载测试 |
-| SoapUI | WebService | SOAP/REST 测试 |
-
-### 7.3 性能测试
-
-| 工具 | 用途 | 适用场景 |
-|------|------|----------|
-| LoadRunner | 企业级 | 大规模负载测试 |
-| k6 | 开发者友好 | 脚本化性能测试 |
-| Gatling | Scala | 高并发场景 |
-
-### 7.4 BUG 管理
-
-| 工具 | 用途 | 特点 |
-|------|------|------|
-| GitHub Issues | 轻量 | 与代码集成 |
-| Jira | 企业级 | 功能完善 |
-| Bugzilla | 开源 | 灵活定制 |
-
----
-
-## 八、环境管理
-
-### 8.1 测试环境
-
-| 环境 | 用途 | 访问要求 |
-|------|------|----------|
-| 开发环境 | 开发调试 | 随时访问 |
-| 测试环境 | 功能测试 | 隔离稳定 |
-| 预生产 | 验收测试 | 与生产一致 |
-
-### 8.2 容器化测试
-
-```
-## Docker 测试环境
-
-- 快速搭建测试环境
-- 环境一致性保证
-- 隔离性好
-- 资源占用可控
-```
+- 读取 test-config.json 获取测试配置
+- 发现问题及时沟通
 
 ---
 
 > **TOOLS.md 维护规则**：
-> 1. 发现新的高效工具时更新
-> 2. 测试模板需要与时俱进
-> 3. 检查清单根据项目特点调整
-> 4. 保持文档简洁实用
+> 1. 工具更新时同步修改
+> 2. 保持示例代码准确
+> 3. 新工具加入时补充

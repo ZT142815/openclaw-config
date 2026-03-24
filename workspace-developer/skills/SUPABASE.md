@@ -68,25 +68,50 @@ supabase projects api-keys <project-ref>
 
 ## 3. 数据库操作
 
-### 3.1 执行 SQL (通过 Dashboard)
+### 3.1 执行 SQL (推荐：通过 Migration)
 
-由于 CLI 不支持直接执行 SQL，需要通过以下方式：
+**推荐方式：使用 `supabase db push`**
 
-**方式 A: Supabase Dashboard**
+```bash
+# 1. 链接项目
+cd /path/to/project
+supabase link --project-ref <project-ref> --password <db-password>
+
+# 2. 创建 migration 文件
+mkdir -p supabase/migrations
+cat > supabase/migrations/001_create_users.sql << 'EOF'
+-- 创建用户表
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 启用 RLS
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+-- 创建 RLS 策略
+CREATE POLICY "Users can view own data" ON users
+  FOR SELECT USING (auth.uid() = id);
+EOF
+
+# 3. 推送到远程数据库
+supabase db push
+```
+
+**方式 B: Supabase Dashboard**
 1. 打开 https://supabase.com/dashboard
 2. 选择项目 → SQL Editor
 3. 粘贴并执行 SQL
 
-**方式 B: 使用 service_role key 调用 REST API**
-```bash
-# 通过 Management API (需要项目 ID)
-# 注意：直接执行 DDL 需要通过 Dashboard
-```
+### 3.2 Migration 工作流程
 
-### 3.2 推荐的工作流程
+1. **创建 migration 文件**：`supabase/migrations/<序号>_<描述>.sql`
+2. **链接项目**：`supabase link --project-ref <ref> --password <pwd>`
+3. **推送变更**：`supabase db push`
+4. **验证**：通过 REST API 或 Dashboard 检查表是否创建成功
 
-1. **开发时**：使用本地 Supabase (`supabase start`)
-2. **部署时**：在 Dashboard SQL Editor 中执行 migration
+> **提示**：migration 文件会被 Supabase 跟踪，重复 push 不会重复执行。
 
 ---
 

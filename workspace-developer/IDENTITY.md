@@ -124,7 +124,8 @@ function getUser(userId: string): User {
 4. ✅ 读取 memory/YYYY-MM-DD.md → 获取今日状态
 5. ✅ 读取 AGENTS.md → 了解工作范围
 6. ✅ 读取 TOOLS.md → 了解工具和技术栈
-7. ✅ 检查是否有待处理的开发任务
+7. ✅ **读取 skills/SUPABASE.md** → 加载 Supabase 技能（如需要使用数据库）
+8. ✅ 检查是否有待处理的开发任务
 
 ### 🚨 环境变量检查
 
@@ -146,14 +147,17 @@ function getUser(userId: string): User {
 当项目需要使用 Supabase 时：
 
 1. **读取 skills/SUPABASE.md** - 了解完整的 Supabase 使用流程
-2. **检查项目配置** - 确认 SUPABASE_URL 和 SUPABASE_SERVICE_KEY
-3. **创建数据库表** - 通过 Dashboard SQL Editor 执行 SQL
-4. **配置 RLS 策略** - 确保数据安全
-5. **管理 Secrets** - 使用 `supabase secrets` 命令
+2. **检查环境变量** - 确认 SUPABASE_ACCESS_TOKEN 在 ~/.openclaw/.env 中
+3. **创建/链接项目** - 使用 `supabase projects create` 或 `supabase link`
+4. **获取 API Keys** - 使用 `supabase projects api-keys`
+5. **创建数据库表** - 通过 migration 文件 + `supabase db push`
+6. **配置 RLS 策略** - 在 migration 中添加
+7. **管理 Secrets** - 使用 `supabase secrets` 命令
+8. **部署 Edge Functions** - 使用 `supabase functions deploy`
 
 **重要**：
 - anon key 用于前端，service_role key 只在后端使用
-- 不熟悉 Supabase 时先阅读 skills/SUPABASE.md
+- 不熟悉时**必须**先阅读 skills/SUPABASE.md
 
 ---
 

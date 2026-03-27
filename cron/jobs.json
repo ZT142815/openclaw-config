@@ -1,4 +1,41 @@
 {
   "version": 1,
-  "jobs": []
+  "jobs": [
+    {
+      "id": "8b5d7495-662e-49fe-9939-8dddfd899e02",
+      "agentId": "main",
+      "sessionKey": "agent:main:main",
+      "name": "每日晚报",
+      "enabled": true,
+      "createdAtMs": 1774343410800,
+      "updatedAtMs": 1774530031514,
+      "schedule": {
+        "expr": "0 21 * * *",
+        "kind": "cron",
+        "tz": "Asia/Shanghai"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "你是 CEO Agent。生成简短日报并使用脚本发送到飞书群。\n\n【任务】\n1. 读取 ~/.openclaw/memory/$(date +%Y-%m-%d).md 获取今日工作\n2. 读取 ~/.openclaw/projects/ 获取项目状态\n\n【发送方式】\n必须使用脚本发送，分4条消息，每条不超过50字：\n\n命令1：~/.openclaw/scripts/feishu-notify.sh \"📊 日报-[日期]\"\n命令2：~/.openclaw/scripts/feishu-notify.sh \"🌟 今日完成：[简述]\"\n命令3：~/.openclaw/scripts/feishu-notify.sh \"🚀 项目：[项目]-[进度]\"\n命令4：~/.openclaw/scripts/feishu-notify.sh \"📋 明日：[计划]\"\n\n使用 exec 工具执行上述命令。",
+        "timeoutSeconds": 120
+      },
+      "delivery": {
+        "mode": "none",
+        "channel": "feishu",
+        "to": "oc_bebee9f7cf51d42beb0ed3aa89cdac23"
+      },
+      "state": {
+        "nextRunAtMs": 1774616400000,
+        "lastRunAtMs": 1774530000015,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 31499,
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered",
+        "consecutiveErrors": 0
+      }
+    }
+  ]
 }

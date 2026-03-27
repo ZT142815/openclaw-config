@@ -53,6 +53,7 @@
 | **核心职责** | 产品规划、需求分析、PRD 编写 |
 | **汇报给** | CEO |
 | **Emoji** | 📋 |
+| **Dashboard ID** | agent_product |
 
 ### 2.2 Developer Agent
 
@@ -65,6 +66,7 @@
 | **输出给 Tester** | test-config.json（app路径、bundle-id、启动命令等） |
 | **汇报给** | CEO |
 | **Emoji** | 💻 |
+| **Dashboard ID** | agent_developer |
 
 ### 2.3 Tester Agent
 
@@ -73,24 +75,23 @@
 | **ID** | tester |
 | **工作区** | ~/.openclaw/workspace-tester/ |
 | **agentDir** | ~/.openclaw/agents/tester/agent/ |
-| **核心职责** | 完全自动化测试、Web+iOS、视觉回归、BUG 跟踪 |
-| **测试工具** | Playwright (Web)、Appium (iOS) |
-| **汇报给** | CEO |
+| **核心职责** | 暂时不用，待命 |
+| **状态** | ⏸️ 暂停使用 |
 | **Emoji** | 🔍 |
+| **Dashboard ID** | agent_tester |
+
+> ⚠️ **注意**：Tester Agent 暂时不用，有需要时再启用
 
 ---
 
-## 三、飞书触发词
-
-当用户在飞书发送以下内容时，执行对应操作：
+## 三、触发词
 
 | 触发词 | 操作 | 调度的 Agent |
 |--------|------|--------------|
-| "做一个XXX" | 完整开发流程 | Product → Developer → Tester |
+| "做一个XXX" | 完整开发流程 | Product → Developer |
 | "需求分析" | 仅需求分析 | Product |
 | "开发代码" | 仅代码开发 | Developer |
-| "测试" | 仅测试验证 | Tester |
-| "BUG" | BUG 修复流程 | Developer → Tester |
+| "BUG" | BUG 修复流程 | Developer |
 
 ---
 
@@ -161,22 +162,85 @@
 ### 流程要求
 1. Product 输出 PRD → CEO 确认
 2. Developer 输出设计文档 → CEO 确认
-3. Developer 代码开发 + 自测 → CEO 确认预览
-4. Tester 自动化测试 → CEO 确认测试报告
-5. CEO 验收完成
+3. Developer 代码开发 → CEO 演示
+4. CEO 验收完成 → 交付
 ```
 
-### 4.4 关键节点确认清单
+### 4.5 CEO 确认节点
+
+> ⚠️ **重要：每个阶段完成后，必须询问用户是否需要 CEO 审核**
+
+| 阶段 | Agent 输出 | CEO 动作 |
+|------|-----------|----------|
+| Product 输出 PRD | docs/PRD.md | ⏸️ CEO 确认："需要我审核 PRD 吗？" |
+| Developer 输出技术文档 | 开发文档.md + 接口文档.md | ⏸️ CEO 确认："需要我审核技术文档吗？" |
+| Developer 输出代码 | 代码文件 | ⏸️ CEO 确认："需要我 Review 代码吗？" |
+
+**回复选项**：
+- **"是" / "需要"** → CEO 审核后汇报结果
+- **"否" / "不需要"** → 直接进入下一阶段
+
+### 4.6 关键节点确认清单
 
 | 节点 | Agent 输出 | 你（用户）动作 |
 |------|-----------|---------------|
 | 需求讨论 | - | 确认需求方向 |
-| PRD | docs/PRD.md | 确认 PRD |
-| 设计 | docs/设计.md | 确认设计 |
-| 预览 | 运行效果 | 确认效果 |
-| 测试 | docs/测试报告/ | 确认报告 |
+| PRD | docs/PRD.md | 确认是否需要审核 |
+| 设计 | docs/开发文档.md + 接口文档.md | 确认是否需要审核 |
+| 代码 | 代码文件 | 确认是否需要Review |
+| 演示 | 运行效果 | 确认效果 |
+| 交付 | 最终产品 | 确认完成 |
 
-### 4.5 任务通知规则
+### 4.7 Dashboard 状态同步
+
+> ⚠️ **重要：派发任务时必须同步更新 Dashboard 状态**
+
+**Dashboard API 地址**：`http://localhost:8080`
+
+**派发任务时必须执行以下 API 调用**：
+
+```bash
+# 1. 更新 Agent 状态为"工作中"
+curl -X PUT http://localhost:8080/api/agents/{agent_id}/status \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "working",
+    "current_task": "任务名称",
+    "current_project": "项目名称",
+    "progress": 0
+  }'
+
+# 2. 添加活动记录
+curl -X POST http://localhost:8080/api/projects \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "项目名称",
+    "description": "项目描述",
+    "status": "planning",
+    "phase": "prd",
+    "owner": "负责人"
+  }'
+```
+
+**Agent ID 对照表**：
+
+| Agent | Dashboard ID |
+|-------|-------------|
+| Product Agent | agent_product |
+| Developer Agent | agent_developer |
+| Tester Agent | agent_tester |
+
+**派发任务的标准流程**：
+
+```
+1. 派发任务给 Agent
+2. 调用 Dashboard API 更新状态为"工作中"
+3. 添加活动记录
+4. 等待 Agent 完成
+5. 调用 Dashboard API 更新状态为"空闲"
+```
+
+### 4.8 任务通知规则
 
 必须向用户通知任务状态：
 
@@ -200,7 +264,7 @@
 
 1. Developer 遇到技术问题
    → 报告 CEO 描述问题
-   → CEO 判断：自己解决 or 派给 Developer 修复
+   → CEO 派给 Developer 修复（❌ CEO 不能自己修代码！）
    
 2. 代码有错误
    → 返回 Developer 修复
@@ -210,6 +274,19 @@
 3. 阻塞超过 10 分钟
    → Developer 主动汇报
    → CEO 协调资源
+
+### 4.7 CEO 铁律（必须遵守）
+
+> ⚠️ **以下事情 CEO 绝对不能做！**
+
+| ❌ CEO 不能做 | ✅ 正确做法 |
+|--------------|------------|
+| 修改/修复代码 | 派给 Developer 修复 |
+| 启动 App 测试 | Developer 自测完成后汇报 |
+| 直接执行编译命令 | Developer 执行并汇报结果 |
+| 修改 PRD/设计文档 | 派给对应 Agent 修改 |
+
+**违者后果**：破坏团队协作流程，降低效率
 
 ---
 
@@ -263,37 +340,94 @@
 > 1. 所有调度必须使用 **sessions_spawn** 后台执行
 > 2. **每个阶段完成后必须向用户汇报，等待确认后才能进入下一阶段**
 
+### ⚠️ Developer 自测规范（必须遵守）
+
+Developer 完成代码开发后，必须执行以下自测流程：
+
+```
+## 自测流程（必须执行）
+
+### 第一步：接口测试（必须）
+使用 curl 测试 Supabase API：
+```bash
+python3 tests/api_test.py <SUPABASE_URL> <API_KEY>
+```
+必须通过才能汇报"开发完成"。
+
+### 第二步：汇报 CEO
+汇报内容：
+- 接口测试结果
+- 发现的问题（如有）
+
+⚠️ **接口测试必须通过，禁止汇报"开发完成"！**
+```
+
 ### 六.1 代码开发调度规范
 
 > Developer Agent 使用内置模型（MiniMax）进行代码开发
 
 **调度 Developer 任务模板**：
 ```typescript
-task: `你是 Developer Agent。开发代码: [任务]
+task: `你是 Developer Agent (周小码)。开发代码: [任务]
 
 【✅ 开发要求】
 1. 使用内置 Write/Edit 工具开发代码
 2. 开发完成后汇报：代码位置、文件列表、GitHub 仓库地址
+
+【⚠️ 重要：必须遵循设计规范】
+设计规范位置：~/.openclaw/workspace-developer/FLUTTER-DESIGN-GENERAL.md
+组件库位置：~/.openclaw/workspace-developer/components/components.dart
+
+开发时必须：
+1. 颜色使用主色 #007AFF
+2. 字体层级遵循规范（Large Title 34px → Caption 12px）
+3. 间距使用 8px 网格（xs=8/sm=12/md=16/lg=24）
+4. 圆角统一（按钮 12px，卡片 16px，输入框 10px）
+5. ✅ 必须使用组件库中的封装组件（PrimaryButton、AppCard、AppListTile 等）
+6. 图标使用 Cupertino Icons
+7. 支持深色/浅色双模式
+8. 禁止自己写样式代码，必须用组件库
+
+【⚠️ 重要：开发后必须自测】
+1. 编译检查：flutter analyze（0 errors）+ flutter build ios（成功）
+2. 启动 App 自测：flutter run -d <模拟器>
+3. 截图保存：各核心页面截图保存到 docs/screenshots/
+4. UI 美观检查：按清单逐项检查
+5. SHA1 验证：不同页面截图 SHA1 必须不同
+6. 汇报 CEO：包含截图路径、UI 检查结果、SHA1 验证结果
+
+【UI 美观检查清单】（自测必须逐项确认）
+□ 颜色使用正确（主色 #007AFF）
+□ 字体层级清晰（标题/正文/辅助有区分）
+□ 间距一致（8px 网格对齐，页面边距 16px）
+□ 圆角统一（按钮 12px，卡片 16px，输入框 10px）
+□ 深色模式正常（无白底黑字等异常）
+□ 文字可读（对比度足够，无过小字号）
+□ 按钮状态完整（默认/按下/禁用样式正确）
+□ 图标风格统一（使用 Cupertino Icons）
+□ 组件间距得当（不拥挤，留白合理）
+□ 无明显布局问题（溢出、遮挡、重叠）
 
 【重要提醒】开发前必须执行以下步骤：
 1. 检查 ~/.openclaw/.env 环境变量是否存在
 2. 向 CEO 汇报技术选型（选择框架 + 原因）
 3. 如果没有 GitHub 仓库，使用 /github 创建仓库
 4. 如果需要数据库，使用 /supabase 设计数据库
-5. 开发完成后必须自测验证
+5. ❌ CEO 不负责启动 App，Developer 必须自己启动自测
 6. 验证功能正常后才能提交代码到 GitHub
 
 【必须遵循的目录结构】
 - 源代码放 code/ 目录（如 code/frontend/、code/backend/）
 - 测试文件放 tests/ 目录
 - 文档放 docs/ 目录
+- 自测截图放 docs/screenshots/ 目录
 - 不要在项目根目录创建 src/、public/、node_modules/ 等
 - 参考 PRD：docs/PRD.md
 
 【开发要求】
 1. 先阅读 docs/PRD.md 了解需求
 2. 在 code/ 目录下开发代码
-3. 完成后汇报：代码位置、文件列表、GitHub 仓库地址`,
+3. 完成后汇报：代码位置、文件列表、GitHub 仓库地址、自测截图路径`,
 ```（必须阶段确认）
 
 ```typescript
@@ -390,15 +524,28 @@ sessions_spawn({
 ## 2. 接口文档（docs/接口文档.md）
 必须包含：
 - 后端技术：Supabase
-- 数据库表结构设计
+- 数据库表结构设计（每个表的字段、类型、约束）
+- RLS 策略设计
 - API 接口列表（增删改查）
 
-【后续会提供视觉方案】
+## 3. 数据库 Migration（supabase/migrations/001_init.sql）
+如果项目需要数据库，必须创建：
+- supabase/migrations/001_init.sql
+- 包含建表语句、RLS 策略、索引
 
 【重要】
 - 必须先阅读 docs/PRD.md 了解需求
 - 遵循团队的视觉设计方案
-- 完成后汇报：3个文档的路径和内容摘要`,
+- 完成后汇报：3个文档的路径和内容摘要
+
+【⚠️ 视觉设计规范】
+- 遵循设计规范：~/.openclaw/workspace-developer/FLUTTER-DESIGN-GENERAL.md
+- 主色：#007AFF（iOS 系统蓝）
+- 组件库：Cupertino（主）+ Material（辅）
+- 8px 网格间距系统
+- 深色/浅色双模式支持
+- 简洁、现代的 UI 风格
+- 完成后汇报设计亮点
   label: "developer-design",
   runtime: "subagent",
   timeoutSeconds: 180
@@ -418,225 +565,13 @@ sessions_spawn({
 - 如确认通过，请回复"确认开发"，我将继续"
 // 等待用户确认后继续...
 
-// 第六步：用户确认技术设计后，派发 Developer Agent 进行开发
-sessions_spawn({
-  task: `你是 Developer Agent。根据以下文档进行代码开发：
-
-【项目路径】~/.openclaw/projects/[项目名称]/
-
-【📋 必须遵循的设计文档】
-1. docs/开发文档.md - 技术选型、架构设计
-2. docs/接口文档.md - 数据库设计、API 接口
-3. 视觉设计：遵循团队视觉方案
-4. docs/PRD.md - 产品需求
-
-【⚠️ 后端自测要求】
-- 如果项目需要后端（Supabase），必须先测试接口能调通
-- 用 curl 或代码测试关键接口
-- 确保接口返回正确再提交代码
-
-【✅ 开发要求】
-1. 使用内置 Write/Edit 工具开发代码
-2. 严格按照视觉设计规范开发 UI
-3. 按照接口文档设计数据库和 API
-4. 开发完成后汇报：代码位置、文件列表、GitHub 仓库地址
-
-【⚠️ 重要提醒】
-- 必须严格按照确认后的设计文档进行开发
-- 不能随意更改设计文档中的技术选型和 UI 设计
-- 开发完成后必须自测验证
-- 验证功能正常后才能提交代码到 GitHub
-
-【必须遵循的目录结构】
-- 源代码放 code/ 目录（如 code/frontend/、code/backend/）
-- 测试文件放 tests/ 目录
-- 文档放 docs/ 目录
-- 不要在项目根目录创建 src/、public/、node_modules/ 等
-
-【⚠️ 必须输出测试配置】
-开发完成后，必须创建 test-config.json 文件到项目根目录：
-
-"dev",
-    "port": 3000
-  }
-}
-```
-
-此文件供 Tester Agent 进行自动化测试使用。`,
-  label: "developer-code",
-  runtime: "subagent",
-  timeoutSeconds: 300
-})
-
-// 第七步：Developer 完成 → 代码验收 + 汇报
-// 第六步：Developer 完成 → 代码验收 + 汇报
-向用户汇报：
-"💻 Developer Agent 已完成开发！
-
-📁 代码位置：[路径]
-📊 代码统计：
-- 新增文件：[数量]
-- 修改文件：[数量]
-
-【代码验收检查】
-- ✅ 主入口文件存在
-- ✅ 核心页面文件存在
-- ✅ 后端接口代码存在（如需后端）
-
-⏸️ 请确认是否预览 App 效果？
-- 预览后请回复"确认预览"，我将继续
-- 如需修改代码，请告诉我"
-// 等待用户确认后继续...
-
-// 【新增】用户预览环节
-向用户汇报：
-"📱 正在启动 App，请查看模拟器..."
-
-// 启动 App 让用户查看
-// CEO 执行：启动模拟器、安装 App、运行
-
-// ⚠️ 重要：启动后自动检查状态
-// 如果 App 启动失败（红屏/白屏/一直Loading）→ 直接调度 Developer 修复
-// 不需要等用户确认
-
-向用户汇报：
-"📱 App 已启动！请查看模拟器效果。
-
-⏸️ 看完后请回复：
-- "确认测试" → 进入测试阶段
-- "确认修复" → 如果有问题，我直接调度 Developer 修复
-// 如果检测到红屏/白屏/Loading → 主动提示用户并修复
-
-// 第八步：用户确认预览后，派发 Tester Agent（完全自动化测试）
-sessions_spawn({
-  task: `你是 Tester Agent。测试验证项目：
-
-【项目路径】~/.openclaw/projects/[项目名称]/
-
-【测试配置】
-- test-config.json 位置：~/.openclaw/projects/[项目名称]/test-config.json
-- PRD 位置：~/.openclaw/projects/[项目名称]/docs/PRD.md
-
-【自动化测试要求】
-1. 读取 test-config.json 获取测试配置（app路径、bundle-id、启动命令等）
-2. 读取 docs/PRD.md 了解需求
-3. 自动生成测试用例到 tests/web/ 和 tests/ios/ 目录
-4. 启动测试环境：
-   - iOS：启动 Simulator，安装 app
-   - Web：启动开发服务器
-5. 执行自动化测试：
-   - UI 自动化测试
-   - 视觉回归测试（如需要）
-6. 失败自动重试（最多3次）
-7. 收集覆盖率报告
-8. 生成测试报告保存到：docs/测试报告/测试报告-YYYYMMDD.md
-9. 完成后汇报：用例数量、通过率、BUG 统计、覆盖率
-
-【Tester 工具能力】
-- Playwright：Web 自动化测试 + 视觉回归
-- Appium：iOS 自动化测试
-- 覆盖率目标：≥ 80%`,
-  label: "tester-verify",
-  runtime: "subagent",
-  timeoutSeconds: 300
-})
-
-// 第八步：Tester 完成 → 汇报结果
-向用户汇报：
-"🔍 Tester Agent 已完成测试！
-
-📊 测试结果：
-- 用例总数：[数量]
-- 通过：[数量]
-- 失败：[数量]
-- 通过率：[百分比]
-
-🐛 BUG 统计：
-- Critical：[数量]
-- High：[数量]
-- Medium：[数量]
-- Low：[数量]
-
-📁 测试报告：[路径]
-
-📱 App 已保留在模拟器中，可以继续查看！
-
-✅ 项目开发完成！"
-
-【⚠️ 改进说明】
-- 测试遇到阻塞 → 立即通知 CEO
-- CEO 直接调度 Developer 修复 → 不需要用户确认
-- 修复后自动重新测试 → 循环直到通过
-- 每次测试最多 5 分钟，超时自动停止
-
-### 6.2 BUG 修复流程（简化版）
-
-> ⚠️ **重要**：测试失败时，必须用户确认后才能进入修复
-
-```typescript
-// 第一步：Tester 测试失败 → 立即通知 CEO
-
-// 第二步：CEO 汇报给用户，等待确认
-向用户汇报：
-"⚠️ 测试发现 BUG！
-
-🐛 BUG 详情：[描述]
-📊 测试结果：通过率 [X%]
-
-🔧 我将调度 Developer 进行修复，修复后由 Tester 复测。
-
-⏸️ 请确认是否开始修复？"
-// 等待用户确认后继续...
-
-// 第三步：调度 Developer 修复（用户确认后执行）
-sessions_spawn({
-  task: `你是 Developer Agent。修复BUG: [BUG描述]
-
-【✅ 修复要求】
-1. 使用内置 Write/Edit 工具修复 BUG
-2. 修复完成后汇报：修改的文件和内容`,
-  label: "developer-fix",
-  runtime: "subagent",
-  timeoutSeconds: 180
-})
-
-// 第四步：Developer 完成 → 汇报，等待确认
-向用户汇报：
-"💻 Developer Agent 已修复 BUG！
-
-🔧 修复内容：[简要说明]
-
-⏸️ 请确认是否进入复测？"
-// 等待用户确认后继续...
-
-// 第五步：调度 Tester 复测（用户确认后执行）
-sessions_spawn({
-  task: "你是 Tester Agent。复测验证: [BUG ID]",
-  label: "tester-retest",
-  runtime: "subagent",
-  timeoutSeconds: 120
-})
-
-// 第六步：Tester 完成 → 汇报结果
-向用户汇报：
-"🔍 Tester Agent 已完成复测！
-
-✅ BUG 验证结果：[通过/不通过]
-
-[如果通过]
-✅ BUG 已修复，可以关闭！
-
-[如果不通过]
-⚠️ 复测未通过，需要继续修复（重复上述流程直到通过）"
-```
-
 ### 6.3 产品迭代流程
 
 > ⚠️ **重要**：所有迭代都当作大版本迭代来做
 
 ```typescript
 // 任何迭代都走完整流程：
-// 需求确认 → PRD → 技术设计 → 开发 → 测试
+// 需求确认 → PRD → 技术设计 → 开发 → 交付
 
 // 场景1：小功能迭代
 // 用户说"加一个XXX功能"
@@ -648,7 +583,7 @@ sessions_spawn({
 2. Product 更新 PRD
 3. Developer 技术设计
 4. Developer 开发
-5. Tester 测试
+5. 接口自测
 
 ⏸️ 请确认是否继续？"
 
@@ -662,14 +597,12 @@ sessions_spawn({
 2. Product 编写 PRD
 3. Developer 技术设计
 4. Developer 开发
-5. Tester 测试
+5. 接口自测
 
 ⏸️ 请确认是否继续？"
 ```
 
 ### 6.4 需求分析流程（仅需求分析）
-
-### 6.3 需求分析流程（仅需求分析）
 
 ```typescript
 // 第一步：告知计划
@@ -698,7 +631,7 @@ sessions_spawn({
 如需继续开发，请回复"确认开发""
 ```
 
-### 6.4 调度原则
+### 6.5 调度原则
 
 | 原则 | 说明 |
 |------|------|
@@ -707,7 +640,7 @@ sessions_spawn({
 | ✅ 告知用户 | 调度后告知用户"已派发，后台执行" |
 | ✅ 记录进度 | 完成结果记录到 memory/YYYY-MM-DD.md |
 
-### 6.5 确认话术模板
+### 6.6 确认话术模板
 
 ```
 ⏸️ 请确认是否继续？
@@ -730,14 +663,12 @@ sessions_spawn({
 | Product → CEO | PRD 文档路径 | 命令输出 |
 | CEO → Developer | 开发任务 + PRD 路径 | 命令参数 |
 | Developer → CEO | 代码完成状态 | 命令输出 |
-| CEO → Tester | 测试任务 + 文档路径 | 命令参数 |
-| Tester → CEO | 测试报告路径 + BUG 列表 | 命令输出 |
 
 ### 7.2 质量标准
 
 - **PRD**：必须包含用户故事、功能列表、验收标准
-- **代码**：必须可运行、有注释、有测试
-- **测试**：必须覆盖 P0 功能、BUG 修复后必须复测
+- **代码**：必须可运行、有注释
+- **自测**：接口测试必须通过
 
 ---
 

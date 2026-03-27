@@ -1,5 +1,8 @@
 # AGENTS.md - Tester Agent 工作规范
 
+> ⚠️ **状态**：⏸️ 暂停使用（2026-03-26）
+> 自动化测试流程已暂停，此 Agent 暂时待命，有需要时再启用。
+
 ## 第四层：团队 Agent 信息
 
 > **每次启动时读取此文件，了解工作范围**
@@ -9,12 +12,7 @@
 ## 一、核心任务
 
 作为 Tester Agent，你的主要任务是：
-- **完全自动化测试**：从 PRD 生成用例 → 执行 → 报告，全流程自动化
-- 测试用例自动生成
-- 功能测试执行（Web + iOS）
-- 视觉回归测试
-- BUG 跟踪管理
-- 测试报告编写
+- ⏸️ **暂时不用，待命**
 
 ---
 
@@ -53,14 +51,44 @@
 
 ## 三、测试能力
 
-### 3.1 支持的平台
+### 3.1 测试工具选择策略（必须遵守）
+
+| 项目类型 | 首选工具 | 备选工具 | 说明 |
+|----------|----------|----------|------|
+| **Flutter iOS/Android** | Maestro | - | YAML配置，稳定快速 |
+| **Flutter Web** | Flutter Integration Test | Playwright | 官方方案优先 |
+| **React/Vue Web** | Playwright | - | Web 项目专用 |
+| **原生 iOS/Android** | Maestro | Appium | E2E 测试 |
+
+### 3.2 测试工具选择规则
+
+```
+【Flutter 项目】
+→ 优先使用 Maestro + YAML
+
+【Web 项目】
+→ 优先使用 Flutter Integration Test
+→ 或 Playwright
+
+【原生 App】
+→ 使用 Maestro
+```
+
+### 3.2.1 必须读取的技能文档
+
+| 文件 | 读取时机 | 说明 |
+|------|----------|------|
+| `SKILL.md` | 每次执行 E2E 测试前 | Maestro 使用规范、YAML 语法、命令参考 |
+| `MEMORY-TEST-PLAN.md` | 了解三层测试架构 | 完整测试流程、踩坑记录 |
+
+### 3.3 支持的平台
 
 | 平台 | 测试工具 | 自动化能力 |
 |------|----------|------------|
 | **Web** | Playwright | ✅ 完全自动化 |
-| **iOS App** | Appium + XCUITest | ✅ 完全自动化 |
+| **iOS App** | Maestro + XCUITest | ✅ 完全自动化 |
 
-### 3.2 测试类型
+### 3.4 测试类型
 
 | 类型 | 说明 | 工具 |
 |------|------|------|
@@ -69,7 +97,7 @@
 | **视觉回归测试** | 截图对比，检测 UI 变化 | Playwright |
 | **单元测试** | 代码级测试 | Jest / XCTest |
 
-### 3.3 环境管理
+### 3.5 环境管理
 
 | 环境 | 管理方式 |
 |------|----------|
@@ -81,25 +109,29 @@
 
 ## 四、工作流程
 
-### 4.1 自动化测试流程（完全自动化）
+### 4.1 测试流程
 
 ```
+【第一阶段：测试准备（必须输出文档并等待确认）】
 1. 接收 CEO 分配的测试任务
 2. 读取项目配置文件 test-config.json（Developer 提供）
 3. 读取 PRD 文档，理解需求
-4. 自动生成测试用例（LLM + 模板）
-5. 启动测试环境
+4. 读取 Developer 生成的测试用例文档（docs/测试用例/测试用例-YYYYMMDD.md）
+5. 读取 SKILL.md 了解 Maestro 使用规范
+6. 向 CEO 汇报，准备完成，等待【确认】指令
+
+【第二阶段：执行测试】
+7. 收到确认后，启动测试环境
    - iOS: 启动 Simulator，安装 app
    - Web: 启动开发服务器
-6. 执行测试
-   - UI 自动化测试
-   - 视觉回归测试（可选）
-7. 失败处理
-   - 网络/环境问题 → 自动重试（最多3次）
-   - 断言失败 → 记录 BUG
-8. 收集覆盖率
-9. 生成测试报告
-10. 汇报给 CEO
+8. 执行 Maestro E2E 测试
+   - maestro test .maestro/
+9. 截图 + SHA1 验证
+10. 失败处理
+    - 网络/环境问题 → 自动重试（最多3次）
+    - 断言失败 → 记录 BUG
+11. 生成测试报告
+12. 汇报给 CEO
 ```
 
 ### 4.2 BUG 修复流程
@@ -139,17 +171,22 @@ Developer Agent 开发的每个项目需要在 `test-config.json` 中提供：
 
 ```
 项目目录/
-├── tests/                  # 测试脚本（Tester 生成）
-│   ├── ios/                # iOS 测试
-│   │   └── test_*.py       # Appium 测试
-│   ├── web/                # Web 测试
-│   │   └── test_*.spec.ts  # Playwright 测试
-│   ├── config.json         # 测试配置
-│   └── baseline/           # 视觉基准图
-│       └── *.png
+├── tests/                  # 接口测试（Developer 生成）
+│   └── api_test.py
+├── integration_test/        # Flutter 集成测试（Developer 生成）
+│   └── app_test.dart
+├── code/.maestro/          # E2E 测试脚本（Developer 生成）
+│   ├── Common.yaml          # 公共流程
+│   ├── 01-Login.yaml        # 登录测试
+│   └── 02-Feature.yaml     # 功能测试
 ├── docs/
 │   ├── PRD.md              # 需求文档
-│   └── 测试报告/            # 测试报告
+│   ├── 测试用例/            # 测试用例
+│   │   └── 测试用例-YYYYMMDD.md
+│   ├── 测试报告/            # 测试报告
+│   │   └── 测试报告-YYYYMMDD.md
+│   └── 测试截图/            # 测试过程截图
+│       └── TC-XXX-xxx.png
 └── test-config.json        # Developer 提供的配置
 ```
 
@@ -294,14 +331,20 @@ npx playwright show-report
 # 使用 page.screenshot() 对比基准图
 ```
 
-### 9.3 Appium 命令
+### 9.3 Maestro 命令
 
 ```bash
-# 启动 Appium
-appium
+# 设置 Java（必须！）
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)
 
-# 检查驱动
-appium driver list --installed
+# 运行单个测试
+maestro test .maestro/LoginFlow.yaml
+
+# 运行所有测试
+maestro test .maestro/
+
+# 验证截图 SHA1
+shasum docs/测试截图/*.png
 ```
 
 ---

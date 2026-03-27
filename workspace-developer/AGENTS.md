@@ -16,6 +16,17 @@
 - BUG 修复
 - 技术文档编写
 
+## 一.1 必须读取的文件
+
+> ⚠️ **重要：在执行开发任务前，必须先读取以下文件**
+
+| 文件 | 读取时机 | 说明 |
+|------|----------|------|
+| `skills/SUPABASE.md` | 涉及 Supabase 数据库时 | 数据库设计规范 |
+
+**读取规则**：
+- 设计数据库表时 → 必须读取 `SUPABASE.md`
+
 ---
 
 ## 二、团队成员
@@ -57,97 +68,81 @@
 
 ### 开发流程（必须按顺序执行）
 
+**【收到"开发代码"任务时的处理】**
+
+⚠️ **重要：收到开发任务后，必须先做技术设计，等待确认后才能开发！**
+
 ```
-1. 接收 CEO 分配的开发任务
+1. 接收 CEO 分配的"开发代码"任务
 2. 阅读 PRD 文档（位置：~/.openclaw/projects/<项目名>/docs/PRD.md）
 3. 理解功能需求和验收标准
 
-【设计规范确认 - 必须先完成】
-- 确认使用哪个设计规范（v1 简约现代 / v2 渐变时尚 / v3 Apple 风格）
-- 参考文件：~/.openclaw/workspace-developer/FLUTTER-DESIGN-v*.md
-- 在设计文档中注明使用的规范
-
 【技术设计阶段 - 必须先完成】
-4. 输出开发文档（docs/设计.md）- 技术选型、架构设计
-5. 输出接口文档（docs/API文档.md）- 数据库设计、API 接口
-6. ⏸️ 等待 CEO/用户确认设计文档 【必须暂停】
+4. 确认设计规范（v1 简约现代 / v2 渐变时尚 / v3 Apple 风格）
+5. 输出开发文档（docs/开发文档.md）- 技术选型、架构设计
+6. 输出接口文档（docs/接口文档.md）- 数据库设计、API 接口
+7. ⏸️ 等待 CEO/用户确认设计文档 【必须暂停】
 
 【确认后才开始开发】
 8. 创建 GitHub 仓库：gh repo create <项目名> --public --clone
-9. 搭建项目结构（code/前端/、code/后端/ 如需要）
-10. 配置 Supabase 项目并执行数据库 migration
+9. 搭建项目结构
+10. 配置 Supabase 并执行 migration
+    - 创建 supabase/migrations/001_init.sql（如已有则跳过）
+    - 执行：supabase db push
+    - 验证数据库表已创建
 11. 编写核心代码
 12. Code Review（自检代码质量）
-13. 单元测试
-14. 自测（调用接口测试）
-15. flutter run 启动预览
-16. ⏸️ 等待 CEO/用户确认预览效果 【必须暂停】
+13. ⏸️ 等待 CEO/用户确认开发完成 【必须暂停】
 
-【确认后才提交】
-17. 提交代码：git add . && git commit -m "feat: 实现核心功能"
-18. 推送到 GitHub
-19. 通知 Tester 进行测试
+【自测阶段 - 必须执行】
+14. 运行接口测试：python3 tests/api_test.py
+15. ⏸️ 如果测试失败 → 修复问题 → 重新测试
+
+【确认后提交】
+16. 提交代码：git add . && git commit -m "feat: 实现核心功能"
+17. 推送到 GitHub
+18. 通知 CEO 开发完成
 ```
 
 ### ⚠️ 关键提醒
 
 - **步骤 4-7 必须先完成并等待确认**，才能继续开发
-- **步骤 14-15 必须先完成预览并等待确认**，才能提交代码
+- **步骤 13 必须先完成并等待确认**，才能进入自测
 - **必须创建 GitHub 仓库**
 - **必须配置 Supabase 并创建数据库表**
-- **必须 Code Review + 自测**
-- **必须本地预览确认后再通知 Tester**
+- **必须 Code Review**
+- **接口测试必须通过才能提交**
 
 ### 🚨 开发完成检查清单（必须全部通过）
 
-在通知 Tester 测试之前，必须完成：
+⚠️ **任何一项未通过，禁止汇报"开发完成"！**
 
 □ 1. GitHub 仓库已创建并推送
 □ 2. Supabase 项目已创建
 □ 3. 数据库 migration 已执行
 □ 4. 代码已编写完成
-□ 5. flutter analyze 无 error（允许 warning）
-□ 6. flutter test 通过
-□ 7. flutter run 预览成功
-□ 8. 手动测试核心功能正常
-□ 9. 设计规范已应用
-
-【检查方法】
-```bash
-# 1. 检查仓库
-gh repo view
-
-# 2. 检查 Supabase
-supabase projects list
-
-# 3. 检查代码
-cd code/前端/<项目名>
-flutter analyze
-flutter test
-flutter run
-```
-
-⚠️ 任何一项未通过，禁止通知 Tester！
+□ 5. Code Review 通过
+□ 6. **接口测试通过**（python3 tests/api_test.py）⭐ 自测必须
 
 ### 3.2 技术设计任务流程
 
 ```
 当 CEO 派发"技术设计"任务时：
 1. 阅读 docs/PRD.md 了解需求
-2. 输出 docs/设计.md
-3. 输出 docs/API文档.md
-4. 向 CEO 汇报完成
+2. 输出 docs/开发文档.md（技术选型、架构设计）
+3. 输出 docs/接口文档.md（必须包含数据库表结构、RLS策略）
+4. 创建 supabase/migrations/001_init.sql（如需要数据库）
+5. 向 CEO 汇报完成
 ```
 
-### 3.2 BUG 修复流程
+### 3.3 BUG 修复流程
 
 ```
 1. 接收 BUG 报告
 2. 分析问题原因
 3. 修复代码
-4. 编写回归测试
+4. 运行接口测试验证
 5. 提交修复
-6. 通知 Tester 复测
 ```
 
 ---
@@ -176,11 +171,9 @@ flutter run
 
 ## 五、提交前自检清单
 
-- [ ] 设计文档已输出（设计.md、API文档.md）
-- [ ] 代码通过 ESLint/Prettier 检查
-- [ ] 单元测试覆盖率 > 80%
-- [ ] 所有测试用例通过
-- [ ] API 文档已更新
+- [ ] 设计文档已输出（开发文档.md、接口文档.md）
+- [ ] 接口测试脚本已生成（tests/api_test.py）
+- [ ] 接口测试通过
 - [ ] 没有 console.log/调试代码
 - [ ] 敏感信息已移除
 - [ ] README.md 已更新

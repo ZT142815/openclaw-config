@@ -10,12 +10,21 @@
 ## 一、代码规范
 
 ### 1.1 命名规范
+
+> ⚠️ **2026-03-29 更新：统一为 Flutter/Dart 社区规范**
+
 | 类型 | 规范 | 示例 |
 |------|------|------|
 | 变量 | camelCase | userName, orderList |
-| 常量 | UPPER_SNAKE | MAX_RETRY, API_KEY |
+| 常量 | camelCase 或 UPPER_SNAKE | maxRetries 或 MAX_RETRIES |
+| 函数 | camelCase | getUser(), fetchOrderList() |
 | 类名 | PascalCase | UserService, OrderController |
-| 文件名 | kebab-case | user-service.ts, order-controller.ts |
+| 枚举 | PascalCase | HttpStatus, UserRole |
+| 文件名 | snake_case | user_service.dart, order_controller.dart |
+| 资源文件 | snake_case | app_colors.dart, app_theme.dart |
+
+> **Flutter 社区标准**：Dart/Flutter 项目统一使用 camelCase（变量/函数）、PascalCase（类）、snake_case（文件）。
+> 参考：https://dart.dev/guides/language/effective-dart/style
 
 ### 1.2 代码注释
 ```typescript

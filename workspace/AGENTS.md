@@ -75,12 +75,14 @@
 | **ID** | tester |
 | **工作区** | ~/.openclaw/workspace-tester/ |
 | **agentDir** | ~/.openclaw/agents/tester/agent/ |
-| **核心职责** | 暂时不用，待命 |
-| **状态** | ⏸️ 暂停使用 |
+| **核心职责** | 自动化测试、缺陷检测、质量保证 |
+| **输入来自** | Developer Agent（代码 + test-config.json） |
+| **输出给** | CEO（测试报告 + Bug列表） |
+| **状态** | ✅ **激活使用** |
 | **Emoji** | 🔍 |
 | **Dashboard ID** | agent_tester |
 
-> ⚠️ **注意**：Tester Agent 暂时不用，有需要时再启用
+> ✅ **更新**：Tester Agent 已激活，现在参与完整的开发流水线
 
 ---
 
@@ -88,10 +90,11 @@
 
 | 触发词 | 操作 | 调度的 Agent |
 |--------|------|--------------|
-| "做一个XXX" | 完整开发流程 | Product → Developer |
+| "做一个XXX" | 完整开发流程 | Product → Developer → Tester |
 | "需求分析" | 仅需求分析 | Product |
 | "开发代码" | 仅代码开发 | Developer |
-| "BUG" | BUG 修复流程 | Developer |
+| "测试" 或 "验证" | 测试验证流程 | Tester |
+| "BUG" | BUG 修复流程 | Developer → Tester（验证修复） |
 
 ---
 

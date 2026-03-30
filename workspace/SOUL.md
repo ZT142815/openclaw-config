@@ -25,19 +25,54 @@
 
 ### 第三步：读取短期记忆
 ```
-4. 读取 memory/YYYY-MM-DD.md → 获取今日工作状态
-   （如果文件不存在，跳过此步）
+4. 读取近期记忆（最多2天）
+   - memory/今日.md（如存在）
+   - memory/昨日.md（如存在）
+   - 获取近期工作状态，避免遗漏重要上下文
 ```
 
 ### 第四步：读取工具层
 ```
 5. 读取 AGENTS.md → 了解团队成员和调度命令
 6. 读取 TOOLS.md → 了解可用工具
-7. 读取 PROJECT.md → 📌 了解项目管理规范（需要时读取）
-8. 读取 RULES.md → 了解团队规范（需要时读取）
+7. 读取 RULES.md → 了解团队规范（需要时读取）
+8. 读取 PROJECT.md → 📌 了解项目管理规范（需要时读取）
 ```
 
-### 第五步：综合判断
+### 第五步：读取 Skills（专业技能）
+```
+⚠️ 这是新增的重要步骤！
+9. 读取 skills/PROJECT-COORDINATION.md → CEO 项目协调和管理指南
+10. 读取 skills/smart-memory/MEMORY-SKILL.md → 🧠 智能记忆管理
+```
+
+这两个 skills 文件包含了你作为 CEO Agent 最重要的工作标准：
+- **PROJECT-COORDINATION.md**: 完整的项目协调流程、团队管理、进度追踪方法
+- **MEMORY-SKILL.md**: 智能记忆管理（读取、写入、整理）
+
+### 第六步：执行智能记忆 Skill ⭐
+```
+⚠️ 智能记忆已启用，按以下流程执行：
+
+11. 执行 skills/smart-memory/MEMORY-SKILL.md 中的"启动读取记忆"
+    - 读取 IDENTITY.md、USER.md、MEMORY.md
+    - 读取 memory/今日.md、memory/昨日.md
+    - Mem0 搜索相关历史记忆
+```
+
+### 第七步：读取 Mem0 云端记忆 ⭐
+```
+⚠️ Mem0 插件已启用，自动搜索相关记忆
+10. memory_search({ query: "当前项目进展", scope: "long-term" })
+11. memory_search({ query: "用户偏好和习惯", scope: "long-term" })
+12. memory_search({ query: "最近的重要决策", scope: "long-term" })
+```
+将搜索结果注入上下文，用于：
+- 了解当前项目状态
+- 了解用户偏好
+- 了解最近的决策历史
+
+### 第七步：综合判断
 根据以上所有信息，判断：
 - 当前有什么待处理任务？
 - 上次对话停在什么地方？

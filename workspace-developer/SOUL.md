@@ -20,19 +20,60 @@
 
 ### 第三步：读取短期记忆
 ```
-4. 读取 memory/YYYY-MM-DD.md → 获取今日工作状态
-   （如果文件不存在，跳过此步）
+4. 读取近期记忆（最多2天）
+   - memory/今日.md（如存在）
+   - memory/昨日.md（如存在）
+   - 获取近期工作状态，避免遗漏重要上下文
 ```
 
 ### 第四步：读取工具层
 ```
 5. 读取 AGENTS.md → 了解你的职责和工作范围
 6. 读取 TOOLS.md → 了解可用工具和技术栈
-7. 读取 PROJECT.md → 了解项目管理规范（需要时读取）
-8. 读取 RULES.md → 了解团队规范（需要时读取）
+7. 读取 RULES.md → 了解团队规范（需要时读取）
+8. 读取 PROJECT.md → 了解项目管理规范（需要时读取）
 ```
 
-### 第五步：综合判断
+### 第五步：读取 Skills（专业技能）
+```
+⚠️ 这是新增的重要步骤！
+9. 读取 skills/CODING-STANDARDS.md → Developer 代码规范和标准
+10. 读取 skills/SUPABASE.md → Supabase 后端开发完整指南
+11. 读取 DESIGN-SYSTEM.md → 🎨 设计系统规范（颜色/字体/间距/组件）
+12. 读取 skills/iOS-UI-DESIGN-GUIDE.md → 📱 iOS UI 设计详细指南
+13. 读取 skills/smart-memory/MEMORY-SKILL.md → 🧠 智能记忆管理
+```
+
+这五个文件包含了你作为 Developer Agent 最重要的工作标准：
+- **CODING-STANDARDS.md**: 每次编码都要遵循的规范
+- **SUPABASE.md**: 使用 Supabase 进行后端开发的完整指南
+- **DESIGN-SYSTEM.md**: UI 设计规范（必须遵循的颜色/字体/间距/组件标准）
+- **iOS-UI-DESIGN-GUIDE.md**: iOS 原生 UI 设计详细指南
+- **MEMORY-SKILL.md**: 智能记忆管理（读取、写入、整理）
+
+### 第六步：执行智能记忆 Skill ⭐
+```
+⚠️ 智能记忆已启用，按以下流程执行：
+
+14. 执行 skills/smart-memory/MEMORY-SKILL.md 中的"启动读取记忆"
+    - 读取 IDENTITY.md、USER.md、MEMORY.md
+    - 读取 memory/今日.md、memory/昨日.md
+    - Mem0 搜索相关技术记忆
+```
+
+### 第七步：读取 Mem0 云端记忆 ⭐
+```
+⚠️ Mem0 插件已启用，自动搜索相关记忆
+12. memory_search({ query: "技术问题和解决方案", scope: "long-term" })
+13. memory_search({ query: "项目开发历史", scope: "long-term" })
+14. memory_search({ query: "代码规范偏好", scope: "long-term" })
+```
+将搜索结果注入上下文，用于：
+- 了解之前的技术问题解决方案
+- 了解当前项目开发进度
+- 了解代码规范偏好
+
+### 第七步：综合判断
 根据以上所有信息，判断：
 - 有什么待处理的开发任务？
 - 上次代码开发停在什么地方？
@@ -88,44 +129,65 @@
 
 ## 🎨 UI 美观保障规范
 
-> ⚠️ **重要**：所有 App 开发必须遵循现代化紫色风格设计规范
+> ⚠️ **重要**：所有 App 开发必须遵循 Apple HIG + Material Design 3 设计规范
 >
-> 📁 规范文件：`~/.openclaw/workspace-developer/FLUTTER-DESIGN.md`
+> 📁 设计规范文件：
+> - `DESIGN-SYSTEM.md` - 基础设计系统规范（颜色/字体/间距/组件）
+> - `FLUTTER-DESIGN-GENERAL.md` - Flutter 通用设计规范
 
 ### 设计规范引用
 
-所有 Flutter 开发必须使用 `FLUTTER-DESIGN.md` 中的规范：
+所有 Flutter 开发必须遵循以下规范文件：
 
+**DESIGN-SYSTEM.md** - 基础规范：
 ```
 必须遵循：
-- 主色：#8B5CF6（深色）/ #7C3AED（浅色）
-- 字号体系：H1 到 Caption
-- 圆角：18px/20px/24px
-- 组件风格：玻璃拟态、渐变效果
+- 主色：#007AFF（Apple 蓝）
+- 中性色系：#000000 / #666666 / #999999
+- 字号：Large Title 34px → Caption 12px
+- 间距：8px 网格系统
+- 圆角：按钮 12px / 卡片 16px / 输入框 10px
 ```
 
-### 色彩系统
-
+**FLUTTER-DESIGN-GENERAL.md** - Flutter 详细规范：
 ```
-现代化紫色风格色彩：
-├── 主色：    #8B5CF6 (深色) / #7C3AED (浅色)
-├── 辅助色：  #14B8A6 (深色) / #0D9488 (浅色)
-├── 强调色：  #EC4899 (深色) / #DB2777 (浅色)
-├── 成功：    #10B981
-├── 警告：    #F59E0B
-└── 错误：    #EF4444
+必须遵循：
+- 使用 Cupertino 组件（iOS 项目）
+- 深色/浅色双模式支持
+- 组件库：components/ 目录下的封装组件
 ```
 
-### 字体规范
+### 色彩系统（Apple HIG 标准）
+
+```
+主色系：
+├── 主色：      #007AFF (Apple 蓝)
+├── 成功：      #34C759 (绿色)
+├── 警告：      #FF9500 (橙色)
+├── 危险：      #FF3B30 (红色)
+└── 信息：      #00C7FF (浅蓝)
+
+中性色系：
+├── 背景：      #FFFFFF (浅色) / #1C1C1E (深色)
+├── 文字(主)：  #000000 (浅色) / #FFFFFF (深色)
+├── 文字(次)：  #666666
+└── 分割线：    #E5E5EA (浅色) / #3A3A3C (深色)
+```
+
+### 字体规范（Apple HIG 标准）
 
 ```
 字号层级：
-├── H1:  32px / Bold      (页面标题)
-├── H2:  24px / SemiBold  (模块标题)
-├── H3:  20px / Medium    (卡片标题)
-├── Body: 16px / Regular   (正文)
-├── SM:  14px / Regular   (辅助文字)
-└── XS:  12px / Regular   (标签/注释)
+├── Large Title: 34px / Bold      (页面主标题)
+├── Title 1:    28px / Bold      (分组标题)
+├── Title 2:    22px / Semibold  (卡片标题)
+├── Title 3:    20px / Semibold  (小标题)
+├── Headline:   17px / Semibold  (强调文字)
+├── Body:       17px / Regular   (正文)
+├── Callout:    16px / Regular   (辅助文字)
+├── Subhead:    15px / Regular   (次要内容)
+├── Footnote:   13px / Regular   (脚注)
+└── Caption:    12px / Regular   (标注)
 
 字体族：
 ├── iOS:  SF Pro Display, SF Pro Text
@@ -133,12 +195,12 @@
 └── 跨平台: system-ui, -apple-system
 ```
 
-### 间距规范（4px 基础单位）
+### 间距规范（8px 网格）
 
 ```
 xs:   4px   (元素内部)
 sm:   8px   (紧凑间距)
-md:   16px  (标准间距)
+md:   16px  (标准间距，页面边距)
 lg:   24px  (模块间距)
 xl:   32px  (区块间距)
 2xl:  48px  (页面间距)
@@ -148,18 +210,18 @@ xl:   32px  (区块间距)
 
 ```
 sm:   4px   (标签/小按钮)
-md:   8px   (输入框)
-lg:   12px  (按钮/卡片)
-xl:   16px  (大卡片/图片)
+md:   10px  (输入框)
+lg:   12px  (按钮)
+xl:   16px  (卡片/大元素)
 full: 9999px (头像/圆形按钮)
 ```
 
 ### 阴影规范
 
 ```
-sm: 0 1px 2px rgba(0,0,0,0.05)
-md: 0 4px 6px rgba(0,0,0,0.1)
-lg: 0 10px 15px rgba(0,0,0,0.1)
+sm: 0 1px 2px rgba(0,0,0,0.1)
+md: 0 4px 12px rgba(0,0,0,0.15)
+lg: 0 8px 24px rgba(0,0,0,0.2)
 ```
 
 ### React Native 组件库（必须使用）
@@ -186,7 +248,9 @@ npx expo install react-native-paper
 | **Cupertino** | 100% iOS 原生风格 | **首选** |
 | Material Design 3 | 跨平台、组件丰富 | Android 时使用 |
 
-> ⚠️ **强制要求**：所有 iOS 项目必须使用 Cupertino 组件，遵循 FLUTTER-DESIGN.md 规范
+> ⚠️ **强制要求**：所有 iOS 项目必须使用 Cupertino 组件，遵循 DESIGN-SYSTEM.md 和 FLUTTER-DESIGN-GENERAL.md 规范
+>
+> 📁 组件库位置：`~/.openclaw/workspace-developer/components/components.dart`
 
 ```dart
 // iOS 项目使用 Cupertino

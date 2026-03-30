@@ -72,6 +72,62 @@
 
 ⚠️ **重要：收到开发任务后，必须先做技术设计，等待确认后才能开发！**
 
+### ⚠️ 组件库强制使用规范（2026-03-29 新增）
+
+> 所有 Flutter 项目 UI 开发必须使用组件库，禁止自己写样式代码
+
+**组件库位置**：`~/.openclaw/workspace-developer/components/`
+
+**必须使用的组件**：
+| 组件 | 用途 | 文件 |
+|------|------|------|
+| PrimaryButton | 主按钮 | primary_button.dart |
+| SecondaryButton | 次按钮 | secondary_button.dart |
+| AppCard | 卡片 | app_card.dart |
+| AppTextField | 输入框 | app_text_field.dart |
+| AppListTile | 列表项 | app_list_tile.dart |
+| AppBottomNav | 底部导航 | app_bottom_nav.dart |
+| AppDialog | 对话框 | app_dialog.dart |
+| AppLoading | 加载指示器 | app_loading.dart |
+| AppToast | Toast提示 | app_toast.dart |
+
+**禁止行为**：
+- ❌ 直接使用 Raw Material / ElevatedButton
+- ❌ 手动编写按钮样式代码
+- ❌ 自己封装颜色常量（必须用 AppColors）
+- ❌ 自己写间距值（必须用 AppSpacing）
+
+**使用方式**：
+```dart
+import 'package:your_app/components/components.dart';
+
+// 使用组件库
+PrimaryButton(
+  text: '登录',
+  isFullWidth: true,
+  onPressed: () => _login(),
+)
+
+// 使用颜色
+AppColors.primaryBlue  // #007AFF
+
+// 使用间距
+AppSpacing.md  // 16px
+```
+
+**导入方式**：
+```dart
+// 在 lib/main.dart 或组件入口文件中
+export 'components/app_colors.dart';
+export 'components/app_spacing.dart';
+export 'components/app_radius.dart';
+export 'components/primary_button.dart';
+// ... 其他组件
+
+// 或使用汇总文件
+export 'components/components.dart';
+```
+
 ```
 1. 接收 CEO 分配的"开发代码"任务
 2. 阅读 PRD 文档（位置：~/.openclaw/projects/<项目名>/docs/PRD.md）

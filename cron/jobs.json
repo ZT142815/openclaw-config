@@ -8,7 +8,7 @@
       "name": "每日晚报",
       "enabled": true,
       "createdAtMs": 1774343410800,
-      "updatedAtMs": 1774530031514,
+      "updatedAtMs": 1774789230852,
       "schedule": {
         "expr": "0 21 * * *",
         "kind": "cron",
@@ -27,11 +27,11 @@
         "to": "oc_bebee9f7cf51d42beb0ed3aa89cdac23"
       },
       "state": {
-        "nextRunAtMs": 1774616400000,
-        "lastRunAtMs": 1774530000015,
+        "nextRunAtMs": 1774875600000,
+        "lastRunAtMs": 1774789200010,
         "lastRunStatus": "ok",
         "lastStatus": "ok",
-        "lastDurationMs": 31499,
+        "lastDurationMs": 30842,
         "lastDelivered": false,
         "lastDeliveryStatus": "not-delivered",
         "consecutiveErrors": 0

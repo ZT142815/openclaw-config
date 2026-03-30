@@ -1,0 +1,364 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Bug Report Schema",
+  "description": "标准化的 Bug 报告格式，用于 Tester Agent 输出和 Developer Agent 自动修复",
+  "type": "object",
+  "required": ["project", "version", "testDate", "summary", "bugs"],
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "项目名称",
+      "example": "pomodoro_timer"
+    },
+    "version": {
+      "type": "string",
+      "description": "被测试的代码版本",
+      "example": "v0.1.0"
+    },
+    "testDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "测试日期",
+      "example": "2026-03-27T10:30:00Z"
+    },
+    "testerAgent": {
+      "type": "string",
+      "description": "测试者",
+      "example": "Tester Agent"
+    },
+    "summary": {
+      "type": "object",
+      "description": "测试摘要统计",
+      "required": ["total", "critical", "high", "medium", "low"],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "description": "发现的总 Bug 数",
+          "example": 5
+        },
+        "critical": {
+          "type": "integer",
+          "description": "严重级别 Bug 数",
+          "example": 1
+        },
+        "high": {
+          "type": "integer",
+          "description": "高优先级 Bug 数",
+          "example": 2
+        },
+        "medium": {
+          "type": "integer",
+          "description": "中优先级 Bug 数",
+          "example": 2
+        },
+        "low": {
+          "type": "integer",
+          "description": "低优先级 Bug 数",
+          "example": 0
+        },
+        "closed": {
+          "type": "integer",
+          "description": "已关闭的 Bug 数",
+          "example": 0
+        }
+      }
+    },
+    "bugs": {
+      "type": "array",
+      "description": "Bug 列表",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "severity", "component", "description", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Bug 唯一标识符",
+            "example": "BUG-001"
+          },
+          "title": {
+            "type": "string",
+            "description": "Bug 标题（简洁描述）",
+            "example": "登录按钮颜色不符合设计规范"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"],
+            "description": "严重级别",
+            "example": "high"
+          },
+          "severityDetails": {
+            "type": "object",
+            "description": "严重级别说明",
+            "properties": {
+              "critical": "系统崩溃、数据丢失、无法使用核心功能",
+              "high": "关键功能受影响、用户体验明显下降",
+              "medium": "部分功能受影响、可有替代方案",
+              "low": "界面不美观、提示信息不清晰"
+            }
+          },
+          "component": {
+            "type": "string",
+            "description": "受影响的组件或模块",
+            "example": "frontend/login"
+          },
+          "description": {
+            "type": "string",
+            "description": "Bug 详细描述",
+            "example": "登录按钮应为蓝色（#007AFF），实际显示为灰色（#CCCCCC）"
+          },
+          "reproduction": {
+            "type": "object",
+            "description": "复现步骤和预期结果",
+            "properties": {
+              "steps": {
+                "type": "array",
+                "description": "复现步骤",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "打开应用",
+                  "进入登录页面",
+                  "查看登录按钮"
+                ]
+              },
+              "expectedResult": {
+                "type": "string",
+                "description": "预期结果",
+                "example": "登录按钮显示为蓝色（#007AFF）"
+              },
+              "actualResult": {
+                "type": "string",
+                "description": "实际结果",
+                "example": "登录按钮显示为灰色（#CCCCCC）"
+              }
+            },
+            "required": ["steps", "expectedResult", "actualResult"]
+          },
+          "screenshot": {
+            "type": "string",
+            "description": "截图文件路径",
+            "example": "docs/bugs/BUG-001.png"
+          },
+          "videoLink": {
+            "type": "string",
+            "description": "视频链接（可选）",
+            "example": "https://drive.google.com/..."
+          },
+          "affectedFunction": {
+            "type": "string",
+            "description": "受影响的函数或方法",
+            "example": "LoginButton.dart::build()"
+          },
+          "relatedCode": {
+            "type": "string",
+            "description": "相关代码位置",
+            "example": "lib/widgets/login_button.dart:45-67"
+          },
+          "suggestedFix": {
+            "type": "string",
+            "description": "建议的修复方案",
+            "example": "修改 Button 组件的 backgroundColor 属性为 Color(0xFF007AFF)"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["open", "assigned", "in_progress", "review", "closed", "wontfix"],
+            "description": "Bug 状态",
+            "example": "open"
+          },
+          "statusHistory": {
+            "type": "array",
+            "description": "状态变更历史",
+            "items": {
+              "type": "object",
+              "properties": {
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "from": {
+                  "type": "string"
+                },
+                "to": {
+                  "type": "string"
+                },
+                "changedBy": {
+                  "type": "string"
+                },
+                "comment": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Bug 创建时间",
+            "example": "2026-03-27T10:30:00Z"
+          },
+          "assignedTo": {
+            "type": "string",
+            "description": "分配给谁修复",
+            "example": "Developer Agent"
+          },
+          "estimatedHours": {
+            "type": "number",
+            "description": "预估修复时间（小时）",
+            "example": 1
+          },
+          "actualHours": {
+            "type": "number",
+            "description": "实际修复时间（小时）",
+            "example": 0.5
+          },
+          "fixedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "修复完成时间",
+            "example": "2026-03-27T11:30:00Z"
+          },
+          "fixedBy": {
+            "type": "string",
+            "description": "修复者",
+            "example": "Developer Agent"
+          },
+          "fixDetails": {
+            "type": "object",
+            "description": "修复详情",
+            "properties": {
+              "commitHash": {
+                "type": "string",
+                "description": "提交哈希"
+              },
+              "filesChanged": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "修改的文件列表"
+              },
+              "description": {
+                "type": "string",
+                "description": "修复说明"
+              }
+            }
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "验证完成时间",
+            "example": "2026-03-27T12:00:00Z"
+          },
+          "verifiedBy": {
+            "type": "string",
+            "description": "验证者",
+            "example": "Tester Agent"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Bug 标签",
+            "example": ["UI", "style", "design"]
+          },
+          "linkedIssues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "关联的其他 Bug",
+            "example": ["BUG-002", "BUG-003"]
+          },
+          "notes": {
+            "type": "string",
+            "description": "额外备注",
+            "example": "这个样式问题影响了整个登录流程的视觉一致性"
+          }
+        }
+      }
+    },
+    "testCoverage": {
+      "type": "object",
+      "description": "测试覆盖率",
+      "properties": {
+        "totalTestCases": {
+          "type": "integer",
+          "example": 45
+        },
+        "executedTestCases": {
+          "type": "integer",
+          "example": 40
+        },
+        "passedTestCases": {
+          "type": "integer",
+          "example": 38
+        },
+        "failedTestCases": {
+          "type": "integer",
+          "example": 2
+        },
+        "coveragePercentage": {
+          "type": "number",
+          "example": 84.4
+        }
+      }
+    },
+    "testEnvironment": {
+      "type": "object",
+      "description": "测试环境信息",
+      "properties": {
+        "device": {
+          "type": "string",
+          "description": "测试设备",
+          "example": "iPhone 15 Pro Simulator"
+        },
+        "osVersion": {
+          "type": "string",
+          "description": "操作系统版本",
+          "example": "iOS 17.0"
+        },
+        "appVersion": {
+          "type": "string",
+          "description": "应用版本",
+          "example": "0.1.0"
+        },
+        "testFramework": {
+          "type": "string",
+          "description": "测试框架",
+          "example": "Maestro"
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "priority": {
+            "type": "string",
+            "enum": ["immediate", "soon", "later"],
+            "description": "优先级"
+          },
+          "recommendation": {
+            "type": "string",
+            "description": "建议内容"
+          }
+        }
+      },
+      "description": "测试建议和改进"
+    },
+    "generatedBy": {
+      "type": "string",
+      "description": "报告生成者",
+      "example": "Tester Agent v1.0"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "报告生成时间",
+      "example": "2026-03-27T13:00:00Z"
+    }
+  }
+}

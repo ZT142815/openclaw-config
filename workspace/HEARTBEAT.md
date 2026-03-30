@@ -19,7 +19,7 @@
 
 | 项目 | 状态 | 说明 |
 |------|------|------|
-| **Dashboard** | ✅ 已上线 | http://localhost:5173 |
+| **Dashboard** | ✅ 运行中 | http://localhost:5173 |
 | **CEO同步服务** | ✅ 运行中 | http://localhost:8089 |
 
 ---
@@ -63,8 +63,22 @@
 cd ~/.openclaw/projects/dashboard/backend && python3 main.py &
 cd ~/.openclaw/projects/dashboard/backend && python3 ceo_sync_service.py &
 
-# 前端
-cd ~/.openclaw/projects/dashboard/frontend && npm run dev
+# 前端 (如果需要重启)
+cd ~/.openclaw/projects/dashboard/frontend && npx vite --host 0.0.0.0 --port 5173 &
+```
+
+---
+
+### ⚠️ 故障处理
+
+**Dashboard 服务停了？**
+```bash
+# 1. 启动后端
+cd ~/.openclaw/projects/dashboard/backend && python3 main.py &
+cd ~/.openclaw/projects/dashboard/backend && python3 ceo_sync_service.py &
+
+# 2. 启动前端 (如果端口冲突，重新安装 esbuild)
+cd ~/.openclaw/projects/dashboard/frontend && npm install esbuild@latest && npx vite --host 0.0.0.0 --port 5173 &
 ```
 
 ---
@@ -79,4 +93,4 @@ cd ~/.openclaw/projects/dashboard/frontend && npm run dev
 
 ---
 
-*最后更新: 2026-03-26 23:27*
+*最后检查: 2026-03-29 18:24*

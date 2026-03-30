@@ -84,19 +84,30 @@
 
 | 服务 | 配置状态 | 说明 |
 |------|----------|------|
-| **Supabase** | ✅ 已配置 Token | 可创建项目、管理数据库、部署边缘函数 |
-| Supabase URL | ✅ 已配置 | vwcrxptckwmhqbccraxg |
-| Supabase ANON_KEY | ⚠️ 待配置 | 需要用户提供 |
+| **Supabase Access Token** | ✅ 已配置 | sbp_2a2970c... (可用于 CLI 操作) |
+| FocusFlow URL | ✅ 已配置 | kxkkchhjdyoiietcisij.supabase.co |
+| Focus Timer URL | ✅ 已配置 | vwcrxptckwmhqbccraxg.supabase.co |
+| 每日一记 App | ✅ 完整配置 | nvufatrbkoguiakssdxt.supabase.co |
 
-### 4.3 Supabase 能力说明
+### 4.3 Supabase 项目列表
+
+| 项目名 | URL | ANON_KEY | SERVICE_KEY | 用途 |
+|--------|-----|----------|-------------|------|
+| FocusFlow | ✅ | ⚠️ 缺失 | ✅ | 番茄钟 App (本地 Flutter) |
+| Focus Timer | ✅ | ⚠️ 缺失 | ✅ | 待确认 |
+| 每日一记 | ✅ | ✅ | ✅ | Flutter + Supabase 项目 |
+| 全局 Token | - | ✅ | sbp_2a... | CLI 操作 |
+
+### 4.4 Supabase 能力说明
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
-| 创建项目 | ✅ | 可用 |
+| 创建项目 | ✅ | 可用 (使用 Access Token) |
 | 管理数据库 | ✅ | 可通过 migration 管理 |
 | 部署 Edge Functions | ✅ | CLI 可部署 |
 | 执行 SQL | ✅ | 通过 migration 推送 |
 | Storage | ✅ | REST API 可用 |
+| 前端连接 | ⚠️ | FocusFlow/Focus Timer 缺 ANON_KEY |
 
 ### 4.4 工作流程
 
@@ -158,20 +169,30 @@ PRD结构：
 
 ### 5.2 代码规范摘要
 
+> ⚠️ **2026-03-29 更新：统一为 Flutter/Dart 社区规范**
+
 ```
 命名规范：
-- 变量：user_name (小写下划线)
-- 函数：get_user() (小写下划线)
-- 类：UserService (大写开驼峰)
-- 常量：MAX_COUNT (大写下划线)
+- 变量：userName (camelCase 小写驼峰)
+- 函数：getUser() (camelCase 小写驼峰)
+- 类：UserService (PascalCase 大写开驼峰)
+- 常量：maxRetries 或 MAX_COUNT 均可
+- 文件：user_service.dart (snake_case 下划线)
 
 测试要求：
 - 覆盖率 > 80%
 - 边界条件测试
 - 异常情况处理
+
+【统一说明】
+之前 CEO 和 Developer 规范存在冲突（CEO 要求下划线，Developer 要求 camelCase）。
+现已统一为 Flutter 社区标准（camelCase）。
 ```
 
-### 5.4 Developer 自测规范（⚠️ 2026-03-26 更新）
+### 5.4 Developer 自测规范（⚠️ 2026-03-29 更新 - 统一版）
+
+> ⚠️ 之前自测规范存在冲突（Developer 认为只需接口测试，CEO 要求完整测试）
+> 现已统一为以下完整版规范
 
 ```
 Developer 完成代码开发后，必须执行以下自测流程：
@@ -187,19 +208,12 @@ Developer 完成代码开发后，必须执行以下自测流程：
 2. 测试核心页面可访问：
    - 登录/注册页面
    - 首页（已登录状态）
-   - 添加物品页面
-   - 物品详情页面
-   - 统计页面
+   - 核心功能页面
    - 设置页面
 3. 每页面截图保存到 docs/screenshots/
-4. 验证 Supabase 连接成功（日志显示 "Supabase init completed"）
+4. 验证 Supabase 连接成功
 
 ### 第三步：UI 美观检查（⚠️ 必须执行）
-按以下清单逐项检查，每项必须通过：
-
-```
-📋 UI 美观检查清单
-
 □ 颜色使用正确（主色 #007AFF）
 □ 字体层级清晰（标题/正文/辅助有区分）
 □ 间距一致（8px 网格对齐，页面边距 16px）
@@ -208,17 +222,14 @@ Developer 完成代码开发后，必须执行以下自测流程：
 □ 文字可读（对比度足够，无过小字号）
 □ 按钮状态完整（默认/按下/禁用样式正确）
 □ 图标风格统一（使用 Cupertino Icons）
-□ 组件间距得当（不拥挤，留白合理）
-□ 无明显布局问题（溢出、遮挡、重叠）
-```
 
-### 第四步：验证截图唯一性（⚠️ 必须执行）
+### 第四步：SHA1 验证（⚠️ 必须执行）
 ```bash
 cd docs/screenshots/
 shasum *.png
 ```
-- 如果所有 SHA1 值相同 = 自测失败 = 必须重新测试
 - 不同页面的截图 SHA1 必须不同
+- 相同 = 自测失败 = 必须重新测试
 
 ### 第五步：汇报 CEO
 汇报内容：
@@ -231,9 +242,8 @@ shasum *.png
 
 ### ⚠️ 重要提醒
 - 发现 bug = 立即修复 = 重新自测 = 确认通过后再汇报 CEO
-- 不要把未修复的问题留给 CEO 或 Tester
 - 自测不完整 = 开发不完成
-- UI 美观检查是自测的必要环节，发现问题立即修复
+- UI 美观检查是自测的必要环节
 ```
 
 ### 5.5 Tester 测试规范（⚠️ 2026-03-25 更新 - 接口+页面分层测试）
@@ -517,15 +527,28 @@ AppCard(
 │       └── 001_init.sql      # 数据库迁移脚本
 ├── docs/
 │   ├── PRD.md                # 产品需求文档
-│   ├── 设计.md               # 技术设计文档
-│   ├── 接口文档.md           # 接口文档（包含数据库设计）
-│   ├── 测试用例/
-│   ├── 测试报告/
-│   └── 测试截图/
-├── screenshots/              # 开发自测截图
-├── test-config.json         # Tester 配置
+│   ├── 开发文档.md            # 技术设计文档（模板：~/.openclaw/templates/开发文档.md）
+│   ├── 接口文档.md           # 接口文档（模板：~/.openclaw/templates/接口文档.md）
+│   ├── 测试用例.md           # 测试用例（模板：~/.openclaw/templates/测试用例.md）
+│   ├── 测试报告.md           # 测试报告（模板：~/.openclaw/templates/测试报告.md）
+│   ├── screenshots/          # 开发自测截图
+│   └── BUG截图/             # BUG 截图
+├── templates/                # 本地模板（如有自定义）
 └── README.md
 ```
+
+### 5.8.1 标准模板库
+
+| 模板文件 | 位置 | 用途 |
+|----------|------|------|
+| PRD.md | ~/.openclaw/templates/PRD.md | 产品需求文档 |
+| 开发文档.md | ~/.openclaw/templates/开发文档.md | 技术设计文档 |
+| 接口文档.md | ~/.openclaw/templates/接口文档.md | 接口/API 文档 |
+| 测试用例.md | ~/.openclaw/templates/测试用例.md | 测试用例 |
+| 测试报告.md | ~/.openclaw/templates/测试报告.md | 测试报告 |
+| BUG报告.md | ~/.openclaw/templates/BUG报告.md | BUG 报告 |
+| 流程文档.md | ~/.openclaw/templates/流程文档.md | 完整开发流程 |
+| 项目模板.md | ~/.openclaw/templates/项目模板.md | 项目初始化 |
 
 ### 5.8 BUG 分级
 
@@ -540,108 +563,48 @@ Low：界面样式、文字等小问题
 
 ## 六、常见任务模板
 
-### 6.1 完整开发流程（⚠️ 2026-03-25 更新）
+### 6.1 完整开发流程（⚠️ 2026-03-29 更新）
+
+> 详细流程请参考：`~/.openclaw/templates/流程文档.md`
+> ⚠️ 以下为简化版，完整流程见流程文档
 
 ```
 阶段1：需求讨论 → CEO 与用户确认需求
 阶段2：PRD 编写 → Product Agent 输出 docs/PRD.md → 用户确认
-阶段3：技术设计 → Developer Agent 输出 docs/设计.md + docs/接口文档.md + supabase/migrations/ → 用户确认 ⚠️
-阶段4：代码开发 → Developer Agent 开发 + 自测（含 SHA1 验证）+ GitHub 提交 → 用户确认 ⚠️
-阶段5：测试准备 → Tester Agent 输出 docs/测试用例/ + docs/测试方案.md → 用户确认
-阶段6：测试执行 → Tester Agent 执行测试（含截图 SHA1 验证）+ 输出 docs/测试报告/ → 用户确认
-阶段7：项目交付 → CEO 验收 + 清理资源
+阶段3：技术设计 → Developer Agent 输出设计文档 → 用户确认
+阶段4：代码开发 → Developer Agent 开发 + 自测 → 用户确认预览
+阶段5：测试验证 → Tester Agent 执行测试 → 用户确认交付
+阶段6：项目交付 → CEO 验收 + 清理资源
+
+详细流程包括：
+- 需求讨论话术模板
+- PRD 评审确认话术
+- 技术设计评审确认话术
+- 自测检查清单（SHA1 验证）
+- 交付验收检查清单
+- CEO 铁律
+- 异常处理流程
 
 ⚠️ CEO 铁律：
 - ❌ 不能修改/修复代码
 - ❌ 不能启动 App 测试
 - ❌ 不能手动运行测试
-- 以上全部由对应 Agent 执行
+- 以上全部由 Developer Agent 执行
 ```
 
-### 6.2 阶段确认节点（⚠️ 必须遵守）
+### 6.2 BUG 修复流程
 
 ```
-[需求讨论] → 用户确认
-    ↓
-[PRD 完成] → 用户确认 "确认开发" 或 "修改 XXX"
-    ↓
-【⚠️ 设计阶段必须汇报 CEO，等待用户确认后再开发】
-[设计完成] → 汇报内容：技术方案、数据库设计、架构图
-    ↓ 用户确认 "确认开发" 或 "修改 XXX"
-    ↓
-【⚠️ Developer 才开始写代码】
-[代码开发] → Developer 自测（含 SHA1 验证）→ 汇报：截图 + SHA1 验证结果
-    ↓
-[预览完成] → 用户查看 App 效果 → 用户确认 "确认测试" 或 "有bug"
-    ↓
-[测试用例+方案完成] → 用户确认 "确认测试执行"
-    ↓
-[测试报告完成] → 汇报：测试用例数、通过率、截图 SHA1 验证结果 → 用户确认 "确认交付"
-    ↓
-[项目完成] → 清理资源
-```
+Developer 在自测中发现 BUG：
+→ 立即修复 → 重新自测 → 确认通过后再汇报
 
-### 6.2.1 Developer 阶段汇报模板
-
-Developer 完成设计/开发后，必须向 CEO 汇报：
-
-```
-✅ [阶段名称] 已完成
-
-📋 汇报内容：
-- [文件路径或说明]
-- [自测截图路径]
-- [SHA1 验证结果]
-
-⚠️ 等待 CEO 确认后才能进入下一阶段
-```
-
-### 6.3 BUG 修复流程（⚠️ 2026-03-25 更新）
-
-```
-## 场景1：自测中发现 BUG
-
-Developer 在自测过程中发现 BUG：
-→ 立即修复 BUG
-→ 重新自测验证
-→ 确认通过后再汇报 CEO
-
-## 场景2：Tester 报告 BUG
-
-Tester 发现 BUG：
-→ Tester 立即报告 CEO：「发现 BUG：[描述]」
-→ CEO 调度 Developer 修复
-→ Developer 修复后重新自测
-→ Tester 复测验证
-→ CEO 汇报用户
-
-## 场景3：用户反馈问题
+Tester 报告 BUG：
+→ CEO 调度 Developer 修复 → Developer 修复后重新自测 → Tester 复测
 
 用户反馈问题：
-→ CEO 记录问题
-→ 调度 Developer 修复
-→ Developer 直接修复，不需要等 CEO 进一步指示
-→ Developer 修复后汇报 CEO
-→ CEO 汇报用户
+→ CEO 记录 → Developer 直接修复 → CEO 汇报用户
 
-## ⚠️ Developer 自主修复规则
-
-Developer 发现任何问题（包括但不限于）：
-- 编译错误
-- 运行时错误（如 Supabase 连接失败）
-- 页面无法访问
-- 功能异常
-
-→ 立即修复 → 重新自测 → 确认通过后汇报
-
-不需要等 CEO 调度！Developer 有权限直接修复开发相关的问题。
-
-## 汇报内容
-
-BUG 修复后必须汇报：
-- 修改的文件
-- 修改的内容
-- 修复后的自测结果（含截图 + SHA1 验证）
+Developer 有权限直接修复开发相关的问题，不需要等 CEO 调度！
 ```
 
 ---
@@ -684,17 +647,109 @@ BUG 修复后必须汇报：
 
 ---
 
-## 八、每周总结
+## 八、标准化体系（2026-03-27 新增）
+
+### 8.1 文档标准化
+
+| 文档类型 | 模板文件 | 存放位置 |
+|----------|----------|----------|
+| PRD | templates/PRD.md | projects/<项目>/docs/PRD.md |
+| 开发文档 | templates/开发文档.md | projects/<项目>/docs/开发文档.md |
+| 接口文档 | templates/接口文档.md | projects/<项目>/docs/接口文档.md |
+| 测试用例 | templates/测试用例.md | projects/<项目>/docs/测试用例.md |
+| 测试报告 | templates/测试报告.md | projects/<项目>/docs/测试报告.md |
+| BUG 报告 | templates/BUG报告.md | projects/<项目>/docs/BUG报告.md |
+
+### 8.2 流程标准化
+
+| 流程 | 文档 | 说明 |
+|------|------|------|
+| 需求讨论 | 流程文档.md | 标准话术模板 |
+| PRD 评审 | 流程文档.md | 确认话术 |
+| 技术设计评审 | 流程文档.md | 确认话术 |
+| 交付验收 | 流程文档.md | 检查清单 |
+
+### 8.3 UI 标准化
+
+| 规范 | 文件 | 说明 |
+|------|------|------|
+| 设计系统 | DESIGN-SYSTEM.md | 基础设计规范 |
+| Flutter 设计 | FLUTTER-DESIGN-GENERAL.md | Flutter 详细规范 |
+| iOS UI | iOS-UI-DESIGN-GUIDE.md | iOS 特定规范 |
+| 组件库 | components/ | 27 个封装组件 |
+
+### 8.4 代码标准化
+
+| 规范 | 文件 | 说明 |
+|------|------|------|
+| 代码规范 | CODING-STANDARDS.md | 编码标准 |
+| Supabase | SUPABASE.md | 后端开发指南 |
+| Git 规范 | AGENTS.md | 分支/Commit 规范 |
+
+---
+
+## 九、每周总结
 
 > 每周日晚自动总结，写入此处
+> ⚠️ **2026-03-29 更新**：必须完成每周总结，不可为空
 
-### 2026年第12周（03.10-03.16）
+### 每周总结模板
 
-- （暂无记录）
+```markdown
+### YYYY年第WW周（MM.DD-MM.DD）
+
+**本周完成**：
+1. [任务1]
+2. [任务2]
+
+**关键决策**：
+- [决策1及原因]
+
+**遇到的问题**：
+- [问题1及解决方案]
+
+**下周计划**：
+1. [计划1]
+2. [计划2]
+
+**心得体会**：
+- [学到的经验]
+```
 
 ### 2026年第13周（03.17-03.23）
 
-- （暂无记录）
+**本周完成**：
+1. 完成 OpenClaw Control UI 项目初始化
+2. 修复记忆系统问题（Mem0、Agent 配置）
+3. 建立团队规范体系
+
+**关键决策**：
+- 采用 Flutter + Supabase 技术栈
+- 统一使用组件库开发
+
+**遇到的问题**：
+- 网络连接不稳定导致 Supabase 操作失败
+- 规范文档存在冲突，已计划统一
+
+**下周计划**：
+1. 完成下一个 App 项目开发
+2. 完善 Tester Agent 规范
+3. 统一团队命名规范
+
+### 2026年第12周（03.10-03.16）
+
+**本周完成**：
+1. 搭建 AI Agent 团队框架
+2. 完成 Dashboard 项目开发
+3. 完成 pomodoro_timer 项目
+
+**关键决策**：
+- 选定 Supabase 作为后端 BaaS
+- 统一开发流程为 7 阶段
+
+**下周计划**：
+1. 继续完善团队规范
+2. 开发新的 App 项目
 
 ---
 

@@ -166,35 +166,6 @@
       "state": {
         "nextRunAtMs": 1775021400000
       }
-    },
-    {
-      "id": "660acb1b-595b-4834-a363-ae2527db53bc",
-      "agentId": "main",
-      "sessionKey": "agent:main:main",
-      "name": "面试题推送-晚",
-      "enabled": true,
-      "createdAtMs": 1775013837085,
-      "updatedAtMs": 1775013837085,
-      "schedule": {
-        "expr": "30 20 * * *",
-        "kind": "cron",
-        "tz": "Asia/Shanghai"
-      },
-      "sessionTarget": "isolated",
-      "wakeMode": "now",
-      "payload": {
-        "kind": "agentTurn",
-        "message": "你是 CEO Agent（周小墨）。生成一道前端面试题并发送到面试群。\n\n【任务】\n1. 用 AI 生成一道中高级前端面试题（随机方向：JS/CSS/React/浏览器/网络/性能优化）\n2. 题目要有【方向】【题目】【详细解析】\n3. 解析至少10行，越详细越好\n\n【发送】\n使用 ~/.openclaw/scripts/feishu-notify.sh 发送到面试群：\nchat_id: oc_50106962c3cef1cfd7e0e77bb4e6fb7e\n\n格式示例：\n📋 【方向】JavaScript\n📝 【题目】请手写一个 Promise.all 方法...\n\n💡 【解析】\n1. 首先分析 Promise.all 的作用...\n2. 返回的是一个 Promise...\n...\n\n【时间】2026年X月X日 20:30",
-        "timeoutSeconds": 120
-      },
-      "delivery": {
-        "mode": "announce",
-        "channel": "feishu",
-        "to": "oc_50106962c3cef1cfd7e0e77bb4e6fb7e"
-      },
-      "state": {
-        "nextRunAtMs": 1775046600000
-      }
     }
   ]
 }

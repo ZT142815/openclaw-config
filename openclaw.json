@@ -165,9 +165,6 @@
           "userId": "openclaw-user",
           "host": "https://mem0-cnlfjzigaku8gczkzo.mem0.volces.com:8000"
         }
-      },
-      "openclaw-weixin": {
-        "enabled": true
       }
     },
     "installs": {
@@ -183,19 +180,6 @@
         "shasum": "c7f5271b2623e2943c5b85a6f7ce2a6733ecdf1b",
         "resolvedAt": "2026-03-20T05:34:17.212Z",
         "installedAt": "2026-03-20T05:34:44.625Z"
-      },
-      "openclaw-weixin": {
-        "source": "npm",
-        "spec": "@tencent-weixin/openclaw-weixin",
-        "installPath": "/Users/zhoutao/.openclaw/extensions/openclaw-weixin",
-        "version": "1.0.2",
-        "resolvedName": "@tencent-weixin/openclaw-weixin",
-        "resolvedVersion": "1.0.2",
-        "resolvedSpec": "@tencent-weixin/openclaw-weixin@1.0.2",
-        "integrity": "sha512-kYPEowHB/0VWt9nQFee/AS6Fb+jbnu38wjkgZDBdKTuJoBL0IBW2obQ0ymgFKBFJJL9rDwnFrb/17ORGZD/X8Q==",
-        "shasum": "244baf0a873683a9c350d0f0b5bc055c07b0eb39",
-        "resolvedAt": "2026-03-22T06:37:58.438Z",
-        "installedAt": "2026-03-22T06:38:03.406Z"
       }
     }
   }

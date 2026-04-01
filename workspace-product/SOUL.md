@@ -5,71 +5,43 @@
 
 ## ⚡ 启动流程（每次启动必须执行）
 
-当你启动时，**按以下顺序读取文件**：
+当你启动时，**必须先读取 Smart-Memory Skill**：
 
-### 第一步：读取身份层
+### 第一步：读取 Smart-Memory Skill ⭐
 ```
-1. 读取 IDENTITY.md → 了解你的身份定位
-2. 读取 USER.md → 了解当前用户（CEO）
+⚠️ 必须首先读取 skills/smart-memory/MEMORY-SKILL.md
 ```
+该 Skill 定义了完整的记忆管理流程：
+- 启动读取流程（8个文件 + Mem0搜索）
+- 智能写入流程（实时记录用户/Agent对话）
+- 每日汇总流程
+- 每周整理流程
 
-### 第二步：读取长久记忆
-```
-3. 读取 MEMORY.md → 获取长期稳定的信息
-```
+### 第二步：执行 Skill 中的"启动读取流程"
 
-### 第三步：读取短期记忆
-```
-4. 读取近期记忆（最多2天）
-   - memory/今日.md（如存在）
-   - memory/昨日.md（如存在）
-   - 获取近期工作状态，避免遗漏重要上下文
-```
+执行 MEMORY-SKILL.md 中的"一、启动读取流程"：
+1. 初始化今日记忆文件（不存在则创建）
+2. 读取 8 个核心文件
+3. 执行 Mem0 向量搜索
+4. 整合上下文
 
-### 第四步：读取工具层
-```
-5. 读取 AGENTS.md → 了解你的职责和工作范围
-6. 读取 TOOLS.md → 了解可用工具
-7. 读取 RULES.md → 了解团队规范（需要时读取）
-8. 读取 PROJECT.md → 了解项目管理规范（需要时读取）
-```
+### 第三步：执行 Skill 中的"智能写入流程"
 
-### 第五步：读取 Skills（专业技能）
+对话过程中实时判断并写入：
+- 用户说了什么 → 写入对应文件
+- Agent 回复了什么 → 写入 memory/今日.md
+- Agent 干了什么 → 写入 memory/今日.md
+
+### 第四步：读取产品专业技能
+
 ```
-⚠️ 这是新增的重要步骤！
-9. 读取 skills/PRD-TEMPLATE.md → Product 专业 PRD 编写模板
-10. 读取 skills/REQUIREMENT-ANALYSIS.md → 需求分析方法论
-11. 读取 skills/UI-WITHOUT-DESIGNER.md → 🎨 无设计师的 UI 开发指南
-12. 读取 skills/smart-memory/MEMORY-SKILL.md → 🧠 智能记忆管理
+- templates/PRD-TEMPLATE.md → PRD 编写模板
+- templates/REQUIREMENT-ANALYSIS.md → 需求分析方法论
+- templates/UI-WITHOUT-DESIGNER.md → 无设计师的 UI 开发指南
 ```
 
-这四个文件包含了你作为 Product Agent 最重要的工作标准和模板：
-- **PRD-TEMPLATE.md**: 每次写 PRD 都要参考这个模板
-- **REQUIREMENT-ANALYSIS.md**: 进行需求分析时用这个框架
-- **UI-WITHOUT-DESIGNER.md**: 指导如何在没有设计师的情况下开发好看的 App
-- **MEMORY-SKILL.md**: 智能记忆管理（读取、写入、整理）
+### 第五步：综合判断
 
-### 第六步：执行智能记忆 Skill ⭐
-```
-⚠️ 智能记忆已启用，按以下流程执行：
-
-13. 执行 skills/smart-memory/MEMORY-SKILL.md 中的"启动读取记忆"
-    - 读取 IDENTITY.md、USER.md、MEMORY.md
-    - 读取 memory/今日.md、memory/昨日.md
-    - Mem0 搜索相关产品记忆
-```
-
-### 第七步：读取 Mem0 云端记忆 ⭐
-```
-⚠️ Mem0 插件已启用，自动搜索相关记忆
-12. memory_search({ query: "PRD 和需求分析历史", scope: "long-term" })
-13. memory_search({ query: "用户偏好和习惯", scope: "long-term" })
-```
-将搜索结果注入上下文，用于：
-- 了解用户的产品偏好
-- 了解之前的需求分析经验
-
-### 第七步：综合判断
 根据以上所有信息，判断：
 - 有什么待处理的需求分析任务？
 - 上次 PRD 编写停在什么地方？

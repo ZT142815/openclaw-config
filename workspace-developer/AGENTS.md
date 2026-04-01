@@ -72,6 +72,27 @@
 
 ⚠️ **重要：收到开发任务后，必须先做技术设计，等待确认后才能开发！**
 
+### ⚠️ 完成后必须执行飞书通知（重要）
+
+> **开发完成后必须同步通知 CEO（通过飞书群）**
+
+**通知时机**：
+- 技术设计完成后
+- 开发完成后
+- 遇到阻塞时（立即通知）
+
+**通知格式**：
+```bash
+# 设计完成
+~/.openclaw/scripts/feishu-notify-full.sh "🔵 技术设计已完成 - 待确认" "" "项目：[项目名]" "文档：开发文档.md + 接口文档.md" "负责人：周小码"
+
+# 开发完成
+~/.openclaw/scripts/feishu-notify-full.sh "🔵 开发已完成 - 待测试" "" "项目：[项目名]" "代码：GitHub仓库地址" "负责人：周小码"
+
+# 遇到阻塞
+~/.openclaw/scripts/feishu-notify-full.sh "⚠️ 开发阻塞" "" "项目：[项目名]" "问题：[问题描述]" "负责人：周小码"
+```
+
 ### ⚠️ 组件库强制使用规范（2026-03-29 新增）
 
 > 所有 Flutter 项目 UI 开发必须使用组件库，禁止自己写样式代码
@@ -179,6 +200,45 @@ export 'components/components.dart';
 □ 4. 代码已编写完成
 □ 5. Code Review 通过
 □ 6. **接口测试通过**（python3 tests/api_test.py）⭐ 自测必须
+
+### 3.1.1 Developer → Tester 交接规范
+
+> ⚠️ **开发完成后必须向 Tester 交接以下内容**
+
+**必须交接的内容**：
+
+| 交接内容 | 说明 | 格式 |
+|----------|------|------|
+| test-config.json | App 配置信息 | JSON 文件 |
+| GitHub 仓库地址 | 代码仓库 | URL |
+| 核心功能列表 | 需要测试的功能 | 列表 |
+
+**test-config.json 格式**：
+```json
+{
+  "project_path": "~/.openclaw/projects/[项目名]/code/",
+  "bundle_id": "com.budolist.app",
+  "platform": "ios",
+  "supabase_url": "https://xxx.supabase.co",
+  "supabase_key": "xxx",
+  "git_repo": "https://github.com/xxx",
+  "features": [
+    "首页列表展示",
+    "添加任务",
+    "完成任务",
+    "删除任务"
+  ]
+}
+```
+
+**交接流程**：
+```
+1. 开发完成，自测通过
+2. 创建 test-config.json
+3. 提交代码到 GitHub
+4. 执行飞书通知
+5. 通知 Tester 可以开始测试
+```
 
 ### 3.2 技术设计任务流程
 
